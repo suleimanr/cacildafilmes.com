@@ -1,49 +1,50 @@
-import MessageContent from "./MessageContent"
 import ColoredResponseCard, { type CardType } from "./ColoredResponseCard"
+import MessageContent from "./MessageContent"
 
 interface MessageRendererProps {
-  role: "user" | "assistant"
-  content: string
-  id: string
-  cardType?: CardType
+  message: {
+    role: "user" | "assistant"
+    content: string
+    id: string
+    cardType?: CardType
+  }
 }
 
-export default function MessageRenderer({ role, content, id, cardType }: MessageRendererProps) {
+export default function MessageRenderer({ message }: MessageRendererProps) {
   return (
-    <div
-      key={id}
-      id={id}
-      className={`mb-6 sm:mb-8 md:mb-12 message-item ${role === "user" ? "pl-2 sm:pl-8 md:pl-16" : ""}`}
-    >
-      {role === "user" && <div className="uppercase text-white mb-2 tracking-wider text-sm sm:text-base">VOCÊ:</div>}
-      {role === "assistant" && (
+    <div className={`mb-6 sm:mb-8 md:mb-12 message-item ${message.role === "user" ? "pl-2 sm:pl-8 md:pl-16" : ""}`}>
+      {message.role === "user" && (
+        <div className="uppercase text-white mb-2 tracking-wider text-sm sm:text-base">VOCÊ:</div>
+      )}
+      {message.role === "assistant" && (
         <div className="uppercase text-white mb-2 tracking-wider text-sm sm:text-base">CACILDA:</div>
       )}
-      {cardType ? (
+
+      {message.cardType ? (
         <ColoredResponseCard
-          type={cardType}
+          type={message.cardType}
           title={
-            cardType === "portfolio"
+            message.cardType === "portfolio"
               ? "Portfólio Cacilda Filmes"
-              : cardType === "servicos"
+              : message.cardType === "servicos"
                 ? "Serviços Cacilda Filmes"
-                : cardType === "sobre"
+                : message.cardType === "sobre"
                   ? "Sobre a Cacilda Filmes"
                   : "Contato Cacilda Filmes"
           }
           subtitle={
-            cardType === "portfolio"
+            message.cardType === "portfolio"
               ? "Conheça nossos trabalhos"
-              : cardType === "servicos"
+              : message.cardType === "servicos"
                 ? "O que oferecemos"
-                : cardType === "sobre"
+                : message.cardType === "sobre"
                   ? "Quem somos"
                   : "Fale conosco"
           }
-          content={content}
+          content={message.content}
         />
       ) : (
-        <MessageContent content={content} />
+        <MessageContent content={message.content} />
       )}
     </div>
   )

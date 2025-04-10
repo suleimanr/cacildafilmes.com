@@ -1,9 +1,8 @@
 "\"use client"
 
-// !!!ATENÇÃO!!!
-// Este arquivo contém código crítico para a integração com o ElevenLabs.
-// NÃO MODIFIQUE este arquivo sem um pedido explícito e aprovação.
-// Alterações aqui podem afetar o funcionamento do agente ElevenLabs.
+interface ElevenLabsClientProps {
+  messages: { role: string; content: string }[]
+}
 
 export class Conversation {
   onMessage: ((message: any) => void) | null = null
@@ -72,5 +71,5 @@ export class Conversation {
     }
   }
 }
-"\
 \
+"
