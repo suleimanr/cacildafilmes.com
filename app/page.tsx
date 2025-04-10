@@ -206,9 +206,6 @@ export default function Home() {
     "elaborar",
   ]
 
-  // Adicionar uma verificação de idioma para as respostas do fallback
-  // Adicionar esta função antes do useEffect que inicializa as mensagens
-
   // Garantir que todas as respostas estejam em português
   useEffect(() => {
     // Verificar se todas as respostas rápidas estão em português
@@ -1226,7 +1223,6 @@ export default function Home() {
             />
           )}
 
-          {/* Botão para rolar para o final quando há mensagens não lidas */}
           {/* Botão para rolar para o final quando há mensagens não lidas */}
           {!isAtBottom && (
             <ScrollToBottomButton
