@@ -10,7 +10,7 @@ import Header from "@/components/Header"
 import { v4 as uuidv4 } from "uuid"
 import { Textarea } from "@/components/ui/textarea"
 import WaveformIcon from "@/components/WaveformIcon"
-import type { CardType } from "@/components/ColoredResponseCard"
+import ColoredResponseCard, { type CardType } from "@/components/ColoredResponseCard"
 import UploadForm from "@/components/UploadForm"
 import DeleteVideoPopup from "@/components/DeleteVideoPopup"
 import PromptPopup from "@/components/PromptPopup"
@@ -19,7 +19,6 @@ import "react-toastify/dist/ReactToastify.css"
 import ThinkingAnimation from "@/components/ThinkingAnimation"
 import ScrollToBottomButton from "@/components/ScrollToBottomButton"
 import { motion } from "framer-motion"
-import MessageRenderer from "@/components/MessageRenderer"
 
 interface Message {
   role: "user" | "assistant"
@@ -1150,7 +1149,46 @@ export default function Home() {
               <div className="max-w-4xl mx-auto">
                 <div className="flex flex-col space-y-4">
                   {messages.map((message) => (
-                    <MessageRenderer key={message.id} message={message} />
+                    <div
+                      key={message.id}
+                      id={message.id}
+                      className={`mb-6 sm:mb-8 md:mb-12 message-item ${message.role === "user" ? "pl-2 sm:pl-8 md:pl-16" : ""}`}
+                    >
+                      {message.role === "user" && (
+                        <div className="uppercase text-white mb-2 tracking-wider text-sm sm:text-base">VOCÊ:</div>
+                      )}
+                      {message.role === "assistant" && (
+                        <div className="uppercase text-white mb-2 tracking-wider text-sm sm:text-base">CACILDA:</div>
+                      )}
+                      {message.cardType ? (
+                        <ColoredResponseCard
+                          type={message.cardType}
+                          title={
+                            message.cardType === "portfolio"
+                              ? "Portfólio Cacilda Filmes"
+                              : message.cardType === "servicos"
+                                ? "Serviços Cacilda Filmes"
+                                : message.cardType === "sobre"
+                                  ? "Sobre a Cacilda Filmes"
+                                  : "Contato Cacilda Filmes"
+                          }
+                          subtitle={
+                            message.cardType === "portfolio"
+                              ? "Conheça nossos trabalhos"
+                              : message.cardType === "servicos"
+                                ? "O que oferecemos"
+                                : message.cardType === "sobre"
+                                  ? "Quem somos"
+                                  : "Fale conosco"
+                          }
+                          content={message.content}
+                        />
+                      ) : (
+                        <div className="leading-relaxed text-sm sm:text-base md:text-lg text-white font-sans">
+                          {message.content}
+                        </div>
+                      )}
+                    </div>
                   ))}
                 </div>
                 {isThinking && (
