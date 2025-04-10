@@ -19,12 +19,24 @@ import "react-toastify/dist/ReactToastify.css"
 import ThinkingAnimation from "@/components/ThinkingAnimation"
 import ScrollToBottomButton from "@/components/ScrollToBottomButton"
 import { motion } from "framer-motion"
+import RoteiroFormatado from "@/components/RoteiroFormatado"
 
 interface Message {
   role: "user" | "assistant"
   content: string
   id: string
   cardType?: CardType
+}
+
+// Função auxiliar para verificar se o conteúdo é um roteiro
+const isRoteiro = (content: string): boolean => {
+  return content.includes(":::roteiro") && content.includes(":::")
+}
+
+// Função auxiliar para extrair o conteúdo do roteiro
+const extractRoteiroContent = (content: string): string => {
+  const match = content.match(/:::roteiro\s*([\s\S]*?)\s*:::/)
+  return match ? match[1] : content
 }
 
 export default function Home() {
@@ -1183,7 +1195,11 @@ export default function Home() {
                           }
                           content={message.content}
                         />
+                      ) : isRoteiro(message.content) ? (
+                        // Se for um roteiro, usar o componente RoteiroFormatado
+                        <RoteiroFormatado content={extractRoteiroContent(message.content)} />
                       ) : (
+                        // Caso contrário, renderizar normalmente
                         <div className="leading-relaxed text-sm sm:text-base md:text-lg text-white font-sans">
                           {message.content}
                         </div>

@@ -36,7 +36,7 @@ const RoteiroFormatado: React.FC<RoteiroFormatadoProps> = ({ content }) => {
         }
       } else if (line.startsWith('"') && line.endsWith('"')) {
         // Falas entre aspas
-        processedLines.push({ type: "speech", content: line.substring(1, line.length - 1) })
+        processedLines.push({ type: "speech", content: line })
       } else {
         // Texto normal
         processedLines.push({ type: "text", content: line })
@@ -153,7 +153,7 @@ const RoteiroFormatado: React.FC<RoteiroFormatadoProps> = ({ content }) => {
 
   return (
     <motion.div
-      className="bg-white p-6 rounded-lg shadow-md max-w-4xl mx-auto my-4 font-sans"
+      className="bg-white text-black p-6 rounded-lg shadow-md max-w-4xl mx-auto my-4 font-sans"
       variants={containerVariants}
       initial="hidden"
       animate="visible"
