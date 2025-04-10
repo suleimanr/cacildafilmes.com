@@ -35,8 +35,9 @@ const isRoteiro = (content: string): boolean => {
 
 // Função auxiliar para extrair o conteúdo do roteiro
 const extractRoteiroContent = (content: string): string => {
-  const match = content.match(/:::roteiro\s*([\s\S]*?)\s*:::/)
-  return match ? match[1] : content
+  const start = content.indexOf(":::roteiro") + 10
+  const end = content.lastIndexOf(":::")
+  return content.substring(start, end).trim()
 }
 
 export default function Home() {

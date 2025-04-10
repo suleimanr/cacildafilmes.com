@@ -1,9 +1,6 @@
 "\"use client"
 
-// This is a placeholder for the actual ElevenLabs client library.
-// In a real application, this would be replaced with the actual
-// implementation of the ElevenLabs client.
-
+// Placeholder simples para o cliente ElevenLabs
 export class Conversation {
   onMessage: ((message: any) => void) | null = null
   onAgentSpeaking: ((isSpeaking: boolean) => void) | null = null
