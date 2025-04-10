@@ -35,9 +35,8 @@ const isRoteiro = (content: string): boolean => {
 
 // Função auxiliar para extrair o conteúdo do roteiro
 const extractRoteiroContent = (content: string): string => {
-  const start = content.indexOf(":::roteiro") + 10
-  const end = content.lastIndexOf(":::")
-  return content.substring(start, end).trim()
+  const match = content.match(/:::roteiro\s*([\s\S]*?)\s*:::/)
+  return match ? match[1] : content
 }
 
 export default function Home() {
@@ -206,6 +205,9 @@ export default function Home() {
     "preciso de",
     "elaborar",
   ]
+
+  // Adicionar uma verificação de idioma para as respostas do fallback
+  // Adicionar esta função antes do useEffect que inicializa as mensagens
 
   // Garantir que todas as respostas estejam em português
   useEffect(() => {
@@ -1224,6 +1226,7 @@ export default function Home() {
             />
           )}
 
+          {/* Botão para rolar para o final quando há mensagens não lidas */}
           {/* Botão para rolar para o final quando há mensagens não lidas */}
           {!isAtBottom && (
             <ScrollToBottomButton
