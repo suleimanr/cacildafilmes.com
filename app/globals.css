@@ -1,0 +1,740 @@
+/* Corrigindo a ordem das diretivas do Tailwind e definindo corretamente as classes */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Ajustes essenciais para prevenir overflow lateral */
+html,
+body {
+  overflow-x: hidden !important;
+  width: 100%; /* Use 100% em vez de 100vw */
+  position: relative;
+  overscroll-behavior-y: contain;
+}
+
+/* Importante fix para evitar overflow lateral no iOS */
+body {
+  position: fixed;
+  inset: 0; /* equivalente a top:0;left:0;right:0;bottom:0 */
+  overflow-y: auto; /* Permite scroll vertical normalmente */
+  -webkit-overflow-scrolling: touch; /* melhor scroll em iOS */
+}
+
+/* Chat Container (garantindo responsividade e centralização perfeita) */
+.chat-container {
+  width: 100%; /* Sempre em porcentagem, nunca vw */
+  max-width: 100%;
+  box-sizing: border-box;
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: env(safe-area-inset-bottom, 0); /* seguro para iOS */
+  margin: 0 auto;
+  overflow: hidden;
+}
+
+/* Quando o teclado está ativo (garantindo comportamento ideal no iOS) */
+.keyboard-active-chat {
+  position: fixed !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  border-radius: 0 !important;
+  transform: none !important;
+  height: auto !important;
+}
+
+/* Classe para quando o teclado está ativo */
+.keyboard-active {
+  /* Mantém o conteúdo fixo enquanto o teclado está ativo */
+  overflow: hidden !important;
+}
+
+/* Removendo a importação de fontes do Google que estava causando o erro */
+/* @import url("https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Roboto:wght@300;400;500;700;900&display=swap"); */
+
+/* Definindo classes personalizadas dentro de camadas */
+@layer utilities {
+  .border-border {
+    border-color: hsl(var(--border));
+  }
+
+  .bg-background {
+    background-color: hsl(var(--background));
+  }
+
+  .text-foreground {
+    color: hsl(var(--foreground));
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+/* Definindo a fonte condensada para títulos */
+.font-condensed {
+  font-family: var(--font-bebas-neue, "Arial Narrow"), Arial, sans-serif;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+}
+
+/* Definindo estilos de fonte específicos */
+.font-light {
+  font-weight: 300;
+}
+
+.font-regular {
+  font-weight: 400;
+}
+
+.font-medium {
+  font-weight: 500;
+}
+
+.font-bold {
+  font-weight: 700;
+}
+
+.font-black {
+  font-weight: 900;
+}
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 3.9%;
+    --primary: 0 0% 9%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 0 0% 96.1%;
+    --secondary-foreground: 0 0% 9%;
+    --muted: 0 0% 96.1%;
+    --muted-foreground: 0 0% 45.1%;
+    --accent: 0 0% 96.1%;
+    --accent-foreground: 0 0% 9%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 89.8%;
+    --input: 0 0% 89.8%;
+    --ring: 0 0% 3.9%;
+    --chart-1: 12 76% 61%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+    --radius: 0.5rem;
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+  .dark {
+    --background: 0 0% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 0 0% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 0 0% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 0 0% 9%;
+    --secondary: 0 0% 14.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 0 0% 14.9%;
+    --muted-foreground: 0 0% 63.9%;
+    --accent: 0 0% 14.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 14.9%;
+    --input: 0 0% 14.9%;
+    --ring: 0 0% 83.1%;
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+/* Modificando o seletor para não usar as classes personalizadas diretamente */
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+  }
+}
+
+/* Adicionar classe personalizada para cor magenta que não existe no Tailwind por padrão */
+.bg-magenta-100 {
+  background-color: #fce7f3;
+}
+
+.bg-magenta-500 {
+  background-color: #ec4899;
+}
+
+.border-magenta-300 {
+  border-color: #f9a8d4;
+}
+
+.border-magenta-600 {
+  border-color: #db2777;
+}
+
+.text-magenta-700 {
+  color: #be185d;
+}
+
+.text-magenta-800 {
+  color: #9d174d;
+}
+
+/* Estilos para os botões de acesso rápido */
+.hover\:bg-magenta-600:hover {
+  background-color: #db2777;
+}
+
+.hover\:bg-magenta-800:hover {
+  background-color: #9d174d;
+}
+
+/* Adicionar novas classes para efeitos de glassmorphism e gradientes */
+.glass-effect {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.text-gradient-blue {
+  background: linear-gradient(to right, #3b82f6, #06b6d4);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+}
+
+.text-gradient-purple {
+  background: linear-gradient(to right, #8b5cf6, #ec4899);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+}
+
+.text-gradient-amber {
+  background: linear-gradient(to right, #f59e0b, #fbbf24);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+}
+
+.text-gradient-emerald {
+  background: linear-gradient(to right, #10b981, #34d399);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Melhorar a aparência dos cards com sombras e efeitos */
+.card-hover-effect {
+  transition: all 0.3s ease;
+}
+
+.card-hover-effect:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Estilos globais adicionais */
+:root {
+  --foreground-rgb: 255, 255, 255;
+  --background-start-rgb: 0, 0, 0;
+  --background-end-rgb: 0, 0, 0;
+}
+
+/* Substituindo o estilo do body para evitar conflitos */
+body.default-theme {
+  color: rgb(var(--foreground-rgb));
+  background: linear-gradient(to bottom, transparent, rgb(var(--background-end-rgb))) rgb(var(--background-start-rgb));
+}
+
+/* Estilos para o chat */
+.prose h1 {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 0.75rem;
+  color: inherit;
+}
+
+.prose h2 {
+  font-size: 1.25rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+  margin-top: 1rem;
+  color: inherit;
+}
+
+.prose h3 {
+  font-size: 1.1rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+  margin-top: 0.75rem;
+  color: inherit;
+}
+
+.prose p {
+  margin-bottom: 0.5rem;
+}
+
+.prose ul {
+  list-style-type: disc;
+  padding-left: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.prose ol {
+  list-style-type: decimal;
+  padding-left: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.prose li {
+  margin-bottom: 0.25rem;
+}
+
+.prose a {
+  color: #3b82f6;
+  text-decoration: underline;
+}
+
+.prose a:hover {
+  text-decoration: none;
+}
+
+.prose code {
+  background-color: rgba(0, 0, 0, 0.1);
+  padding: 0.1rem 0.2rem;
+  border-radius: 0.2rem;
+  font-family: monospace;
+}
+
+.prose pre {
+  background-color: rgba(0, 0, 0, 0.1);
+  padding: 0.5rem;
+  border-radius: 0.3rem;
+  overflow-x: auto;
+  margin-bottom: 0.75rem;
+}
+
+.prose pre code {
+  background-color: transparent;
+  padding: 0;
+}
+
+.prose blockquote {
+  border-left: 3px solid #6b7280;
+  padding-left: 1rem;
+  font-style: italic;
+  margin: 0.75rem 0;
+}
+
+/* Adicionar estas classes no final do arquivo para melhorar a responsividade */
+
+@media (max-width: 640px) {
+  /* Ajustes para dispositivos móveis */
+  .prose h1 {
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .prose h2 {
+    font-size: 1.1rem;
+    margin-bottom: 0.4rem;
+    margin-top: 0.8rem;
+  }
+
+  .prose h3 {
+    font-size: 1rem;
+    margin-bottom: 0.4rem;
+    margin-top: 0.6rem;
+  }
+
+  .prose p {
+    font-size: 0.9rem;
+    margin-bottom: 0.4rem;
+  }
+
+  .prose ul,
+  .prose ol {
+    padding-left: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+
+  .prose li {
+    margin-bottom: 0.2rem;
+    font-size: 0.9rem;
+  }
+
+  /* Ajustar espaçamento para dispositivos móveis */
+  .p-4 {
+    padding: 0.75rem;
+  }
+
+  .m-4 {
+    margin: 0.75rem;
+  }
+
+  .gap-4 {
+    gap: 0.75rem;
+  }
+
+  /* Melhorar a visualização de texto em dispositivos móveis */
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  /* Garantir que elementos não ultrapassem a largura da tela */
+  .max-w-full {
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  /* Melhorar a visualização de imagens em dispositivos móveis */
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+}
+
+/* Melhorar a rolagem em dispositivos móveis */
+@media (max-width: 640px) {
+  ::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 2px;
+  }
+}
+
+/* Classe para esconder a barra de rolagem em elementos com overflow */
+.scrollbar-hide {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none; /* Chrome, Safari and Opera */
+}
+
+/* Ajustes para telas muito pequenas */
+@media (max-width: 360px) {
+  .text-xs {
+    font-size: 0.65rem;
+  }
+
+  .p-2 {
+    padding: 0.4rem;
+  }
+
+  .gap-2 {
+    gap: 0.4rem;
+  }
+}
+
+/* Adicionar regras CSS específicas para dispositivos móveis no final do arquivo */
+
+/* Melhorias específicas para a interface de chat em dispositivos móveis */
+@media (max-width: 640px) {
+  /* Melhorar a visualização de botões em dispositivos móveis */
+  .button-sm-mobile {
+    padding: 0.25rem 0.5rem !important;
+    font-size: 0.7rem !important;
+    height: auto !important;
+    min-height: 1.75rem !important;
+  }
+
+  /* Ajustar o tamanho dos ícones em dispositivos móveis */
+  .icon-sm-mobile {
+    width: 0.875rem !important;
+    height: 0.875rem !important;
+  }
+
+  /* Melhorar a visualização de texto em dispositivos móveis */
+  .text-sm-mobile {
+    font-size: 0.75rem !important;
+    line-height: 1rem !important;
+  }
+
+  /* Ajustar o espaçamento em dispositivos móveis */
+  .p-sm-mobile {
+    padding: 0.5rem !important;
+  }
+
+  .m-sm-mobile {
+    margin: 0.5rem !important;
+  }
+
+  .gap-sm-mobile {
+    gap: 0.5rem !important;
+  }
+
+  /* Melhorar a visualização de cards em dispositivos móveis */
+  .card-sm-mobile {
+    border-radius: 0.5rem !important;
+    padding: 0.75rem !important;
+  }
+
+  /* Ajustar o tamanho do texto em dispositivos móveis */
+  .h1-sm-mobile {
+    font-size: 1.25rem !important;
+    line-height: 1.5rem !important;
+  }
+
+  .h2-sm-mobile {
+    font-size: 1.125rem !important;
+    line-height: 1.375rem !important;
+  }
+
+  .p-sm-mobile {
+    font-size: 0.875rem !important;
+    line-height: 1.25rem !important;
+  }
+}
+
+/* Corrigir problemas de visualização em dispositivos com tela muito pequena */
+@media (max-width: 360px) {
+  /* Reduzir ainda mais o tamanho dos botões */
+  .button-xs-mobile {
+    padding: 0.2rem 0.4rem !important;
+    font-size: 0.65rem !important;
+    min-height: 1.5rem !important;
+  }
+
+  /* Ajustar o espaçamento em dispositivos muito pequenos */
+  .p-xs-mobile {
+    padding: 0.25rem !important;
+  }
+
+  .m-xs-mobile {
+    margin: 0.25rem !important;
+  }
+
+  .gap-xs-mobile {
+    gap: 0.25rem !important;
+  }
+}
+
+/* Melhorar a visualização do slider de vídeo em dispositivos móveis */
+@media (max-width: 640px) {
+  /* Ajustar o tamanho dos controles do slider */
+  .slider-control-mobile {
+    width: 2rem !important;
+    height: 2rem !important;
+    padding: 0.5rem !important;
+  }
+
+  /* Ajustar o tamanho do texto no slider */
+  .slider-title-mobile {
+    font-size: 1.25rem !important;
+    line-height: 1.5rem !important;
+  }
+
+  /* Ajustar o tamanho do texto no slider */
+  .slider-subtitle-mobile {
+    font-size: 0.875rem !important;
+    line-height: 1.25rem !important;
+  }
+
+  /* Ajustar o tamanho dos botões no slider */
+  .slider-button-mobile {
+    padding: 0.375rem 0.75rem !important;
+    font-size: 0.75rem !important;
+  }
+
+  /* Melhorar a visualização de categorias no slider */
+  .slider-category-mobile {
+    padding: 0.25rem 0.5rem !important;
+    font-size: 0.7rem !important;
+  }
+}
+
+/* Adicione estas regras no final do arquivo */
+
+/* Estilo para o header quando o logo está centralizado */
+.header-centered {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Ajuste para o chat quando o logo está centralizado */
+.chat-container {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: env(safe-area-inset-bottom, 0);
+  margin: 0 auto;
+  overflow: hidden;
+}
+
+/* Quando o teclado está ativo */
+.keyboard-active-chat {
+  position: fixed !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  border-radius: 0 !important;
+  transform: none !important;
+  height: auto !important;
+}
+
+/* Estilos para o div editável */
+.editable-div {
+  min-height: 40px;
+  max-height: 120px;
+  overflow-y: auto;
+  word-break: break-word;
+  white-space: pre-wrap;
+  line-height: 1.5;
+  outline: none;
+  cursor: text;
+}
+
+/* Estilo para o placeholder do div editável */
+.editable-div:empty:before {
+  content: attr(placeholder);
+  color: #9ca3af;
+  pointer-events: none;
+}
+
+/* Melhorar a aparência do div editável em dispositivos móveis */
+@media (max-width: 640px) {
+  .editable-div {
+    font-size: 16px !important; /* Evita zoom automático em iOS */
+  }
+}
+
+/* Estilos para barra de rolagem visível */
+.scrollbar-visible::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+.scrollbar-visible::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 5px;
+}
+
+.scrollbar-visible::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 5px;
+}
+
+.scrollbar-visible::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.scrollbar-visible {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.5) rgba(0, 0, 0, 0.2);
+}
+
+/* Animação para rolagem suave */
+.smooth-scroll {
+  scroll-behavior: smooth;
+}
+
+/* Animação para o indicador de digitação */
+.typing-indicator {
+  display: inline-flex;
+  align-items: center;
+  margin: 0 0.5rem;
+}
+
+.typing-indicator span {
+  height: 8px;
+  width: 8px;
+  margin: 0 1px;
+  background-color: #9ca3af;
+  border-radius: 50%;
+  display: inline-block;
+  opacity: 0.4;
+}
+
+.typing-indicator span:nth-child(1) {
+  animation: pulse 1s infinite 0.1s;
+}
+
+.typing-indicator span:nth-child(2) {
+  animation: pulse 1s infinite 0.2s;
+}
+
+.typing-indicator span:nth-child(3) {
+  animation: pulse 1s infinite 0.3s;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.4;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+}
+
+/* Animação para mensagens */
+.message-item {
+  transition: all 0.3s ease-out;
+  animation: messageAppear 0.3s ease-out forwards;
+}
+
+@keyframes messageAppear {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
