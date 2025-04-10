@@ -1,7 +1,7 @@
 "\"use client"
 
 // !!!ATENÇÃO!!!
-// Este file contém código crítico para a integração com o ElevenLabs.
+// This file contém código crítico para a integração com o ElevenLabs.
 // NÃO MODIFIQUE este file sem um pedido explícito e aprovação.
 // Alterações aqui podem afetar o funcionamento do agente ElevenLabs.
 
@@ -69,6 +69,7 @@ export class Conversation {
   async endSession() {
     if (this.ws) {
       this.ws.close()
+      this.ws = null
     }
   }
 }

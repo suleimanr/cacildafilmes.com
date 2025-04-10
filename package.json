@@ -77,7 +77,7 @@
     "dotenv": "latest",
     "@11labs/client": "latest",
     "uuid": "latest",
-    "ai": "latest"
+    "react-markdown": "latest"
   },
   "devDependencies": {
     "@types/node": "^22",
