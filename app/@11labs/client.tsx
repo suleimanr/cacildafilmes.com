@@ -1,75 +1,70 @@
-"use client"
+"\"use client"
 
-// !!!ATENÇÃO!!!
-// This file contém código crítico para a integração com o ElevenLabs.
-// NÃO MODIFIQUE este file sem um pedido explícito e aprovação.
-// Alterações aqui podem afetar o funcionamento do agente ElevenLabs.
+import type React from "react"
+import { useEffect, useRef } from "react"
 
-export class Conversation {
-  onMessage: ((message: any) => void) | null = null
-  onAgentSpeaking: ((isSpeaking: boolean) => void) | null = null
-  onError: ((error: Error) => void) | null = null
-  onDisconnect: (() => void) | null = null
+interface ElevenLabsClientProps {
+  messages: { role: string; content: string }[]
+}
 
-  private ws: WebSocket | null = null
-  private signedUrl: string
+export const ElevenLabsClient: React.FC<ElevenLabsClientProps> = ({ messages }) => {
+  const audioRef = useRef<HTMLAudioElement>(null)
 
-  constructor(signedUrl: string) {
-    this.signedUrl = signedUrl
-  }
-
-  static async startSession(config: { signedUrl: string }): Promise<Conversation> {
-    const conversation = new Conversation(config.signedUrl)
-    conversation.connect()
-    return conversation
-  }
-
-  private connect() {
-    this.ws = new WebSocket(this.signedUrl)
-
-    this.ws.onopen = () => {
-      console.log("ElevenLabs WebSocket connected")
-    }
-
-    this.ws.onmessage = (event) => {
+  useEffect(() => {
+    const synthesizeSpeech = async (text: string) => {
       try {
-        const data = JSON.parse(event.data)
-        if (this.onMessage) {
-          this.onMessage(data)
+        const response = await fetch("/api/elevenlabs", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ text }),
+        })
+
+        if (!response.ok) {
+          throw new Error(`ElevenLabs API error: ${response.status} ${response.statusText}`)
         }
-        if (data.type === "audio" && this.onAgentSpeaking) {
-          this.onAgentSpeaking(true)
-          setTimeout(() => this.onAgentSpeaking?.(false), 200)
+
+        const data = await response.json()
+        if (data.audio) {
+          const audioBlob = new Blob(
+            [
+              new Uint8Array(
+                atob(data.audio)
+                  .split("")
+                  .map((c) => c.charCodeAt(0)),
+              ),
+            ],
+            {
+              type: "audio/mpeg",
+            },
+          )
+          const audioUrl = URL.createObjectURL(audioBlob)
+
+          if (audioRef.current) {
+            audioRef.current.src = audioUrl
+            audioRef.current.play().catch((error) => console.error("Error playing audio:", error))
+          }
         }
       } catch (error) {
-        console.error("ElevenLabs WebSocket message error:", error)
-        this.onError?.(error as Error)
+        console.error("Error synthesizing speech:", error)
       }
     }
 
-    this.ws.onerror = (error) => {
-      console.error("ElevenLabs WebSocket error:", error)
-      this.onError?.(error as Error)
+    if (messages.length > 0) {
+      const lastMessage = messages[messages.length - 1]
+      if (lastMessage.role === "assistant") {
+        synthesizeSpeech(lastMessage.content)
+      }
     }
 
-    this.ws.onclose = () => {
-      console.log("ElevenLabs WebSocket disconnected")
-      this.onDisconnect?.()
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause()
+        audioRef.current.src = ""
+      }
     }
-  }
+  }, [messages])
 
-  send(message: any) {
-    if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-      this.ws.send(JSON.stringify(message))
-    } else {
-      console.warn("ElevenLabs WebSocket not connected, message not sent")
-    }
-  }
-
-  async endSession() {
-    if (this.ws) {
-      this.ws.close()
-      this.ws = null
-    }
-  }
+  return <audio ref={audioRef} controls={false} className="hidden" />
 }

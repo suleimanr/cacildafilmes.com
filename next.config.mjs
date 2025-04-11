@@ -1,36 +1,26 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  webpack: (config, { isServer }) => {
-    // Adiciona um loader para lidar com identificadores que começam com números
-    config.module.rules.push({
-      test: /\.(js|jsx|ts|tsx)$/,
-      use: [
-        {
-          loader: 'string-replace-loader',
-          options: {
-            search: /(\s|\{|,)11labs:/g,
-            replace: '$1"11labs":',
-            flags: 'g'
-          }
-        }
-      ]
-    });
-
-    return config;
-  },
-  // Outras configurações existentes
+  reactStrictMode: true,
+  transpilePackages: ["@11labs/react"],
   experimental: {
-    serverActions: true,
-  },
-  images: {
-    domains: ['localhost'],
-    unoptimized: true,
+    serverComponentsExternalPackages: ["sharp"],
   },
   eslint: {
     ignoreDuringBuilds: true,
   },
   typescript: {
     ignoreBuildErrors: true,
+  },
+  images: {
+    unoptimized: true,
+  },
+  webpack: (config) => {
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      // Usar aspas para a propriedade que começa com número
+      "@11labs/client": "@11labs/client",
+    };
+    return config;
   },
 }
 
