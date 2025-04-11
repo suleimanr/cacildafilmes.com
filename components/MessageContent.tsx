@@ -1,24 +1,30 @@
+"use client"
+
+import type React from "react"
+import ReactMarkdown from "react-markdown"
 import RoteiroFormatado from "./RoteiroFormatado"
 
 interface MessageContentProps {
   content: string
 }
 
-// Function to check if content is a roteiro
-const isRoteiro = (content: string): boolean => {
-  return content.includes(":::roteiro") && content.includes(":::")
-}
+const MessageContent: React.FC<MessageContentProps> = ({ content }) => {
+  // Verificar se o conteúdo é um roteiro
+  const roteiroRegex = /:::roteiro\s*([\s\S]*?)\s*:::/
+  const match = content.match(roteiroRegex)
 
-// Function to extract roteiro content
-const extractRoteiroContent = (content: string): string => {
-  const match = content.match(/:::roteiro\s*([\s\S]*?)\s*:::/)
-  return match ? match[1] : content
-}
-
-export default function MessageContent({ content }: MessageContentProps) {
-  if (isRoteiro(content)) {
-    return <RoteiroFormatado content={extractRoteiroContent(content)} />
+  if (match) {
+    // Se for um roteiro, extrair o conteúdo entre as tags e usar o componente RoteiroFormatado
+    const roteiroContent = match[1]
+    return <RoteiroFormatado content={roteiroContent} />
+  } else {
+    // Se não for um roteiro, renderizar como markdown normal
+    return (
+      <div className="prose prose-sm sm:prose lg:prose-lg max-w-none">
+        <ReactMarkdown>{content}</ReactMarkdown>
+      </div>
+    )
   }
-
-  return <div className="leading-relaxed text-sm sm:text-base md:text-lg text-white font-sans">{content}</div>
 }
+
+export default MessageContent

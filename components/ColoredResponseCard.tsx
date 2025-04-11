@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { ChevronDown, ChevronUp, Phone, Mail, Instagram } from "lucide-react"
 
@@ -27,6 +27,7 @@ const ColoredResponseCard: React.FC<ColoredResponseCardProps> = ({
   onClick,
 }) => {
   const [isExpanded, setIsExpanded] = useState(false)
+  const [imageLoaded, setImageLoaded] = useState(false)
 
   const toggleExpand = (e: React.MouseEvent) => {
     // Evitar que o toggle seja acionado quando clicar em links ou botões
@@ -78,7 +79,8 @@ const ColoredResponseCard: React.FC<ColoredResponseCardProps> = ({
       case "portfolio":
         return "/images/portfolio-muitas.png"
       case "servicos":
-        return "/images/servicos-coca.png"
+        // Usar a URL direta para garantir que a imagem seja carregada
+        return "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Captura%20de%20Tela%202025-04-10%20a%CC%80s%2018.31.05.png-9nbovficNM9adkSZc4k6koPdqNdCnX.jpeg"
       case "sobre":
         return "/images/sobre-estudio.png"
       case "contato":
@@ -88,6 +90,13 @@ const ColoredResponseCard: React.FC<ColoredResponseCardProps> = ({
     }
   }
 
+  // Pré-carregar a imagem para garantir que ela seja exibida
+  useEffect(() => {
+    const img = new Image()
+    img.src = getImage()
+    img.onload = () => setImageLoaded(true)
+  }, [type])
+
   return (
     <div
       className="rounded-lg overflow-hidden shadow-lg transition-all duration-300 hover:shadow-xl cursor-pointer mb-6"
@@ -95,7 +104,17 @@ const ColoredResponseCard: React.FC<ColoredResponseCardProps> = ({
     >
       {/* Imagem com fundo colorido */}
       <div className={`relative ${getBgColor()}`}>
-        <img src={getImage() || "/placeholder.svg"} alt={title} className="w-full h-48 sm:h-56 md:h-64 object-cover" />
+        <img
+          src={getImage() || "/placeholder.svg"}
+          alt={title}
+          className="w-full h-48 sm:h-56 md:h-64 object-cover"
+          onError={(e) => {
+            // Fallback para placeholder se a imagem não carregar
+            const target = e.target as HTMLImageElement
+            console.error(`Erro ao carregar imagem: ${target.src}`)
+            target.src = "/placeholder.svg?height=400&width=800"
+          }}
+        />
       </div>
 
       {/* Informações do card com fundo preto */}

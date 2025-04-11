@@ -76,7 +76,8 @@
     "react-toastify": "latest",
     "dotenv": "latest",
     "@11labs/client": "latest",
-    "uuid": "latest"
+    "uuid": "latest",
+    "react-markdown": "latest"
   },
   "devDependencies": {
     "@types/node": "^22",
