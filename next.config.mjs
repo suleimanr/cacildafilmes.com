@@ -1,33 +1,14 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  webpack: (config, { isServer }) => {
-    // Resolver o problema com identificadores que começam com números
-    config.module.rules.push({
-      test: /\.(js|jsx|ts|tsx)$/,
-      loader: 'string-replace-loader',
-      options: {
-        search: /\b11labs:/g,
-        replace: '"11labs":',
-        flags: 'g'
-      }
-    });
-    
-    return config;
-  },
-  // Outras configurações existentes
-  experimental: {
-    serverExternalPackages: ["@11labs/client"]
-  },
+  reactStrictMode: true,
+  swcMinify: true,
   images: {
     domains: ['vumbnail.com'],
-    unoptimized: true,
   },
-  eslint: {
-    ignoreDuringBuilds: true,
+  experimental: {
+    serverActions: true,
   },
-  typescript: {
-    ignoreBuildErrors: true,
-  },
+  serverExternalPackages: ['@supabase/supabase-js'],
 }
 
-export default nextConfig;
+module.exports = nextConfig
