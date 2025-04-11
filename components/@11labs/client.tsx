@@ -1,4 +1,4 @@
-"use client"
+"\"use client"
 
 // !!!ATENÇÃO!!!
 // This file contém código crítico para a integração com o ElevenLabs.
@@ -73,3 +73,4 @@ export class Conversation {
     }
   }
 }
+"\

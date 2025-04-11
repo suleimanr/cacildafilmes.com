@@ -9,13 +9,6 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-  webpack: (config) => {
-    config.resolve.alias = {
-      ...config.resolve.alias,
-      '@/elevenlabs': path.join(__dirname, 'app/@11labs'),
-    };
-    return config;
-  },
 }
 
-export default nextConfig;
+export default nextConfig

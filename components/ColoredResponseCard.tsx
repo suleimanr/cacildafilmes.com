@@ -80,7 +80,7 @@ const ColoredResponseCard: React.FC<ColoredResponseCardProps> = ({
         return "/images/portfolio-muitas.png"
       case "servicos":
         // Usar a URL direta para garantir que a imagem seja carregada
-        return "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Captura%20de%20Tela%202025-04-10%20a%CC%80s%2018.31.05.png-9nbovficNM9adkSZc4k6koPdqNdCnX.jpeg"
+        return "/images/services-hero-new.jpg"
       case "sobre":
         return "/images/sobre-estudio.png"
       case "contato":
