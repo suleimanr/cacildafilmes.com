@@ -79,8 +79,8 @@ const ColoredResponseCard: React.FC<ColoredResponseCardProps> = ({
       case "portfolio":
         return "/images/portfolio-muitas.png"
       case "servicos":
-        // Usar a URL direta para garantir que a imagem seja carregada
-        return "/images/services-hero-new.jpg"
+        // Usar a URL do blob diretamente
+        return "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Captura%20de%20Tela%202025-04-10%20a%CC%80s%2018.31.05.png-j29J2eh0mUzq5GtwcvU1q3QtPxVm1M.jpeg"
       case "sobre":
         return "/images/sobre-estudio.png"
       case "contato":
@@ -95,6 +95,10 @@ const ColoredResponseCard: React.FC<ColoredResponseCardProps> = ({
     const img = new Image()
     img.src = getImage()
     img.onload = () => setImageLoaded(true)
+    img.onerror = () => {
+      console.error(`Erro ao carregar imagem: ${img.src}`)
+      setImageLoaded(false)
+    }
   }, [type])
 
   return (

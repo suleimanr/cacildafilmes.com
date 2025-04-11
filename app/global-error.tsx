@@ -1,7 +1,5 @@
 "use client"
 
-import { useEffect } from "react"
-
 export default function GlobalError({
   error,
   reset,
@@ -9,10 +7,6 @@ export default function GlobalError({
   error: Error & { digest?: string }
   reset: () => void
 }) {
-  useEffect(() => {
-    console.error(error)
-  }, [error])
-
   return (
     <html>
       <body>
@@ -21,7 +15,7 @@ export default function GlobalError({
           <p className="mb-8 text-gray-400">Ocorreu um erro inesperado. Por favor, tente novamente.</p>
           <button
             onClick={() => reset()}
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-md transition-colors"
+            className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
           >
             Tentar novamente
           </button>

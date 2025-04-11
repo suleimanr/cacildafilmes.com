@@ -1,7 +1,7 @@
 "\"use client"
 
 // !!!ATENÇÃO!!!
-// This file contém código crítico para a integração com o ElevenLabs.
+// This file contains code crítico para a integração com o ElevenLabs.
 // NÃO MODIFIQUE este file sem um pedido explícito e aprovação.
 // Alterações aqui podem afetar o funcionamento do agente ElevenLabs.
 
