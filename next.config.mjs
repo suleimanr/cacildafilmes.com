@@ -1,10 +1,5 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: true,
-  transpilePackages: ["@11labs/react"],
-  experimental: {
-    serverComponentsExternalPackages: ["sharp"],
-  },
   eslint: {
     ignoreDuringBuilds: true,
   },
@@ -17,8 +12,7 @@ const nextConfig = {
   webpack: (config) => {
     config.resolve.alias = {
       ...config.resolve.alias,
-      // Usar aspas para a propriedade que começa com número
-      "@11labs/client": "@11labs/client",
+      '@/elevenlabs': path.join(__dirname, 'app/@11labs'),
     };
     return config;
   },
