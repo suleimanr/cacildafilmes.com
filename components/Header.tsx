@@ -69,13 +69,13 @@ const Header: React.FC<HeaderProps> = ({ chatInteracted = false }) => {
   return (
     <header className="fixed top-0 left-0 right-0 z-30">
       <motion.div
-        className="flex justify-center items-center py-2 sm:py-4"
-        initial={{ y: "calc(50vh - 80px - 48px)" }}
-        animate={{ y: hasInteracted ? 0 : "calc(50vh - 80px - 48px)" }}
+        className="flex justify-center items-center py-4 sm:py-6 md:py-8"
+        initial={{ y: "calc(50vh - 120px - 48px)" }}
+        animate={{ y: hasInteracted ? 0 : "calc(50vh - 120px - 48px)" }}
         transition={{ duration: 0.6, ease: "easeInOut" }}
       >
         <div className="flex items-center">
-          <div className="relative h-6 sm:h-8 mr-2 sm:mr-4 min-w-[60px] sm:min-w-[80px] md:min-w-[120px] flex items-center justify-end">
+          <div className="relative h-6 sm:h-8 mr-3 sm:mr-4 min-w-[60px] sm:min-w-[80px] md:min-w-[120px] flex items-center justify-end mb-2 sm:mb-0">
             <AnimatePresence mode="wait">
               <motion.span
                 key={wordIndex}
@@ -89,7 +89,7 @@ const Header: React.FC<HeaderProps> = ({ chatInteracted = false }) => {
               </motion.span>
             </AnimatePresence>
           </div>
-          <Link href="/" className="relative w-28 sm:w-36 md:w-48 h-10 sm:h-12 md:h-16 block">
+          <Link href="/" className="relative w-24 sm:w-36 md:w-48 h-10 sm:h-12 md:h-16 block mt-4 sm:mt-0">
             <Image
               src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/logo_cacilda_branco-s4HJCLoA37rroomFzzgQXIrg0KMt2N.png"
               alt="Cacilda Filmes Logo"

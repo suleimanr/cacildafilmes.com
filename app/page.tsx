@@ -1174,7 +1174,7 @@ export default function Home() {
           className="fixed left-0 right-0 p-2 sm:p-4 border-t border-gray-800 bg-black"
           initial={{ bottom: 0 }}
           animate={{
-            bottom: isInitialPosition ? "calc(50vh - 120px)" : 0,
+            bottom: isInitialPosition ? "calc(50vh - 180px)" : 0,
             transition: { duration: 0.6, ease: "easeInOut" },
           }}
         >
