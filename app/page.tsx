@@ -13,7 +13,6 @@ import DeleteVideoPopup from "@/components/DeleteVideoPopup"
 import PromptPopup from "@/components/PromptPopup"
 import { toast, ToastContainer } from "react-toastify"
 import "react-toastify/dist/ReactToastify.css"
-import ThinkingAnimation from "@/components/ThinkingAnimation"
 import ScrollToBottomButton from "@/components/ScrollToBottomButton"
 import { motion } from "framer-motion"
 import MessageContent from "@/components/MessageContent"
@@ -1133,14 +1132,19 @@ export default function Home() {
                     </div>
                   ))}
                 </div>
-                {isThinking && (
-                  <div className="mb-6 sm:mb-8 md:mb-12 message-item">
-                    <div className="uppercase text-white mb-2 tracking-wider text-sm sm:text-base">CACILDA:</div>
-                    <div className="flex items-center space-x-2 text-white text-lg font-mono">
-                      <ThinkingAnimation />
+                {
+                  // Modificando apenas a parte relevante onde o ThinkingAnimation é renderizado
+                  isThinking && (
+                    <div className="mb-6 sm:mb-8 md:mb-12 message-item">
+                      <div className="uppercase text-white mb-2 tracking-wider text-sm sm:text-base">CACILDA:</div>
+                      <div className="typing-indicator">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )
+                }
                 <div ref={messagesEndRef} />
               </div>
             </div>
