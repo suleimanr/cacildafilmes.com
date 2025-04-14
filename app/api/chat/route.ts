@@ -71,12 +71,22 @@ export async function POST(req: Request) {
         // Para perguntas complexas, usar o Assistente configurado no dashboard da OpenAI
         console.log("Usando o Assistente OpenAI para pergunta complexa")
 
-        // Criar uma thread ou usar uma existente com retry
-        const thread = await withRetry(() => openai.beta.threads.create())
+        // Verificar se há um thread_id na requisição
+        const { messages, threadId: existingThreadId } = await req.json()
+
+        // Usar o thread existente ou criar um novo
+        let threadId = existingThreadId
+        if (!threadId) {
+          console.log("Criando novo thread")
+          const thread = await withRetry(() => openai.beta.threads.create())
+          threadId = thread.id
+        } else {
+          console.log("Usando thread existente:", threadId)
+        }
 
         // Adicionar a mensagem do usuário à thread com retry
         await withRetry(() =>
-          openai.beta.threads.messages.create(thread.id, {
+          openai.beta.threads.messages.create(threadId, {
             role: "user",
             content: lastUserMessage.content,
           }),
@@ -84,7 +94,7 @@ export async function POST(req: Request) {
 
         // Executar o assistente na thread com retry e timeout reduzido
         const run = await withRetry(() =>
-          openai.beta.threads.runs.create(thread.id, {
+          openai.beta.threads.runs.create(threadId, {
             assistant_id: process.env.OPENAI_ASSISTANT_ID!,
             // Definir um timeout mais curto para evitar que a função serverless expire
             timeout_in_seconds: 40,
@@ -92,7 +102,7 @@ export async function POST(req: Request) {
         )
 
         // Aguardar a conclusão do run com timeout
-        let runStatus = await withRetry(() => openai.beta.threads.runs.retrieve(thread.id, run.id))
+        let runStatus = await withRetry(() => openai.beta.threads.runs.retrieve(threadId, run.id))
 
         // Definir um timeout para evitar que a função fique presa
         const startTime = Date.now()
@@ -109,7 +119,7 @@ export async function POST(req: Request) {
           await new Promise((resolve) => setTimeout(resolve, 1000))
 
           try {
-            runStatus = await openai.beta.threads.runs.retrieve(thread.id, run.id)
+            runStatus = await openai.beta.threads.runs.retrieve(threadId, run.id)
           } catch (error) {
             console.error("Erro ao verificar status do run:", error)
             break
@@ -123,7 +133,7 @@ export async function POST(req: Request) {
         }
 
         // Obter as mensagens da thread
-        const threadMessages = await withRetry(() => openai.beta.threads.messages.list(thread.id))
+        const threadMessages = await withRetry(() => openai.beta.threads.messages.list(threadId))
 
         // Encontrar a resposta do assistente (a última mensagem)
         const assistantMessage = threadMessages.data.find((msg) => msg.role === "assistant")
@@ -140,7 +150,10 @@ export async function POST(req: Request) {
             },
           })
 
-          return new NextResponse(stream)
+          // Adicionar o threadId ao cabeçalho da resposta
+          const response = new NextResponse(stream)
+          response.headers.set("X-Thread-ID", threadId)
+          return response
         }
 
         // Fallback se não conseguir obter a resposta do assistente

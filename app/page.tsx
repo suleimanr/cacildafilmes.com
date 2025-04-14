@@ -664,6 +664,15 @@ export default function Home() {
               }),
             })
 
+            // E adicionar código para salvar o threadId retornado
+            if (response.ok) {
+              const data = await response.json()
+              if (data.threadId) {
+                localStorage.setItem("threadId", data.threadId)
+                console.log("Thread ID salvo:", data.threadId)
+              }
+            }
+
             if (!response.ok) {
               throw new Error(`Server error: ${response.status} ${response.statusText}`)
             }
