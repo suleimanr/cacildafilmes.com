@@ -1,164 +1,104 @@
-// Script para encontrar e remover qualquer arquivo relacionado ao ElevenLabs
+// Script para remover completamente arquivos específicos relacionados ao ElevenLabs
 const fs = require("fs")
 const path = require("path")
 
-// Função para encontrar todos os arquivos no projeto
-function findAllFiles(dir, excludeDirs = ["node_modules", ".next", ".git", "dist"]) {
+console.log("REMOVENDO ARQUIVOS RELACIONADOS AO ELEVENLABS")
+console.log("==========================================================")
+
+// Lista de arquivos específicos a serem removidos
+const filesToRemove = [
+  "components/ElevenLabsStreaming.tsx",
+  "components/ElevenLabsToolHandler.tsx",
+  "components/AudioChat.tsx",
+  "lib/elevenlabs-config.ts",
+  "lib/elevenlabs-service.ts",
+  "types/elevenlabs.ts",
+  "docs/ELEVENLABS_INTEGRATION.md",
+]
+
+// Função para verificar se um arquivo existe e removê-lo
+function removeFileIfExists(filePath) {
+  const fullPath = path.join(process.cwd(), filePath)
+
+  if (fs.existsSync(fullPath)) {
+    try {
+      console.log(`Removendo arquivo: ${filePath}`)
+      fs.unlinkSync(fullPath)
+      console.log(`✅ Arquivo removido com sucesso: ${filePath}`)
+      return true
+    } catch (error) {
+      console.error(`❌ Erro ao remover arquivo ${filePath}:`, error.message)
+      return false
+    }
+  } else {
+    console.log(`Arquivo não encontrado: ${filePath}`)
+    return false
+  }
+}
+
+// Remover cada arquivo da lista
+let removedCount = 0
+for (const file of filesToRemove) {
+  if (removeFileIfExists(file)) {
+    removedCount++
+  }
+}
+
+// Procurar por outros arquivos que possam conter "elevenlabs" ou "11labs" no nome
+function findFilesWithPattern(baseDir, pattern, excludeDirs = ["node_modules", ".git", ".next"]) {
   let results = []
 
-  if (!fs.existsSync(dir)) {
-    console.log(`Diretório não encontrado: ${dir}`)
-    return results
-  }
+  if (!fs.existsSync(baseDir)) return results
 
-  const items = fs.readdirSync(dir)
+  const items = fs.readdirSync(baseDir)
 
   for (const item of items) {
-    const itemPath = path.join(dir, item)
+    const fullPath = path.join(baseDir, item)
 
     // Pular diretórios excluídos
-    if (excludeDirs.some((excludeDir) => itemPath.includes(excludeDir))) {
+    if (excludeDirs.some((excludeDir) => fullPath.includes(excludeDir))) {
       continue
     }
 
     try {
-      const stat = fs.statSync(itemPath)
+      const stat = fs.statSync(fullPath)
 
       if (stat.isDirectory()) {
-        results = results.concat(findAllFiles(itemPath, excludeDirs))
-      } else if (stat.isFile()) {
-        results.push(itemPath)
-      }
-    } catch (error) {
-      console.error(`Erro ao acessar ${itemPath}:`, error.message)
-    }
-  }
-
-  return results
-}
-
-// Termos a serem procurados nos nomes de arquivos
-const searchTerms = ["elevenlabs", "ElevenLabs", "Elevenlabs", "eleven-labs", "11labs", "11Labs"]
-
-// Encontrar todos os arquivos
-console.log("Buscando todos os arquivos no projeto...")
-const allFiles = findAllFiles(".")
-console.log(`Encontrados ${allFiles.length} arquivos para verificar.`)
-
-// Filtrar arquivos com nomes relacionados ao ElevenLabs
-const elevenlabsFiles = allFiles.filter((file) => {
-  const fileName = path.basename(file).toLowerCase()
-  return searchTerms.some((term) => fileName.toLowerCase().includes(term.toLowerCase()))
-})
-
-// Exibir e remover arquivos encontrados
-if (elevenlabsFiles.length > 0) {
-  console.log(`\nEncontrados ${elevenlabsFiles.length} arquivos com nomes relacionados ao ElevenLabs:`)
-  console.log("===========================================")
-
-  for (const file of elevenlabsFiles) {
-    console.log(`Removendo: ${file}`)
-    try {
-      fs.unlinkSync(file)
-      console.log(`✅ Arquivo removido com sucesso: ${file}`)
-    } catch (error) {
-      console.error(`❌ Erro ao remover arquivo: ${file}`, error.message)
-    }
-  }
-
-  console.log("\n===========================================")
-  console.log(`Processo concluído. ${elevenlabsFiles.length} arquivos foram verificados para remoção.`)
-} else {
-  console.log("\n✅ Nenhum arquivo com nome relacionado ao ElevenLabs encontrado!")
-}
-
-// Verificar se há diretórios com nomes relacionados ao ElevenLabs
-console.log("\nVerificando diretórios com nomes relacionados ao ElevenLabs...")
-
-function findDirectories(dir, excludeDirs = ["node_modules", ".next", ".git", "dist"]) {
-  let results = []
-
-  if (!fs.existsSync(dir)) {
-    return results
-  }
-
-  const items = fs.readdirSync(dir)
-
-  for (const item of items) {
-    const itemPath = path.join(dir, item)
-
-    // Pular diretórios excluídos
-    if (excludeDirs.some((excludeDir) => itemPath.includes(excludeDir))) {
-      continue
-    }
-
-    try {
-      const stat = fs.statSync(itemPath)
-
-      if (stat.isDirectory()) {
-        // Verificar se o nome do diretório contém termos relacionados ao ElevenLabs
-        const dirName = path.basename(itemPath).toLowerCase()
-        if (searchTerms.some((term) => dirName.includes(term.toLowerCase()))) {
-          results.push(itemPath)
-        }
-
         // Continuar procurando em subdiretórios
-        results = results.concat(findDirectories(itemPath, excludeDirs))
+        results = results.concat(findFilesWithPattern(fullPath, pattern, excludeDirs))
+      } else if (pattern.test(item)) {
+        // Verificar se o nome do arquivo contém o padrão
+        results.push(fullPath)
       }
     } catch (error) {
-      console.error(`Erro ao acessar ${itemPath}:`, error.message)
+      console.error(`Erro ao acessar ${fullPath}:`, error.message)
     }
   }
 
   return results
 }
 
-const elevenlabsDirs = findDirectories(".")
+console.log("\nProcurando por outros arquivos relacionados ao ElevenLabs...")
+const filePattern = /(elevenlabs|11labs|ElevenLabs)/i
+const additionalFiles = findFilesWithPattern(process.cwd(), filePattern)
 
-if (elevenlabsDirs.length > 0) {
-  console.log(`\nEncontrados ${elevenlabsDirs.length} diretórios com nomes relacionados ao ElevenLabs:`)
-  console.log("===========================================")
+if (additionalFiles.length > 0) {
+  console.log(`Encontrados ${additionalFiles.length} arquivos adicionais relacionados ao ElevenLabs.`)
 
-  // Ordenar diretórios do mais profundo para o mais raso para evitar problemas de dependência
-  elevenlabsDirs.sort((a, b) => {
-    const depthA = a.split(path.sep).length
-    const depthB = b.split(path.sep).length
-    return depthB - depthA // Ordem decrescente
-  })
-
-  for (const dir of elevenlabsDirs) {
-    console.log(`Removendo diretório: ${dir}`)
+  for (const file of additionalFiles) {
     try {
-      // Verificar se o diretório está vazio
-      const items = fs.readdirSync(dir)
-      if (items.length > 0) {
-        console.log(`⚠️ Diretório não está vazio, removendo conteúdo primeiro: ${dir}`)
-        for (const item of items) {
-          const itemPath = path.join(dir, item)
-          try {
-            const stat = fs.statSync(itemPath)
-            if (stat.isFile()) {
-              fs.unlinkSync(itemPath)
-              console.log(`  ✅ Arquivo removido: ${itemPath}`)
-            } else {
-              console.log(`  ⚠️ Subdiretório encontrado, pulando: ${itemPath}`)
-            }
-          } catch (error) {
-            console.error(`  ❌ Erro ao remover item: ${itemPath}`, error.message)
-          }
-        }
-      }
-
-      // Agora tenta remover o diretório
-      fs.rmdirSync(dir)
-      console.log(`✅ Diretório removido com sucesso: ${dir}`)
+      console.log(`Removendo arquivo adicional: ${file}`)
+      fs.unlinkSync(file)
+      console.log(`✅ Arquivo adicional removido com sucesso: ${file}`)
+      removedCount++
     } catch (error) {
-      console.error(`❌ Erro ao remover diretório: ${dir}`, error.message)
+      console.error(`❌ Erro ao remover arquivo adicional ${file}:`, error.message)
     }
   }
-
-  console.log("\n===========================================")
-  console.log(`Processo concluído. ${elevenlabsDirs.length} diretórios foram verificados para remoção.`)
 } else {
-  console.log("✅ Nenhum diretório com nome relacionado ao ElevenLabs encontrado!")
+  console.log("Nenhum arquivo adicional encontrado.")
 }
+
+console.log("\n==========================================================")
+console.log(`Total de ${removedCount} arquivos removidos.`)
+console.log("==========================================================")
