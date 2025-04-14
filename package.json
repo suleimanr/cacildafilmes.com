@@ -76,8 +76,8 @@
     "react-toastify": "latest",
     "dotenv": "latest",
     "react-markdown": "latest",
-    "uuid": "latest",
-    "child_process": "latest"
+    "child_process": "latest",
+    "uuid": "latest"
   },
   "devDependencies": {
     "@types/node": "^22",

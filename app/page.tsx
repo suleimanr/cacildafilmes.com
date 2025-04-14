@@ -17,6 +17,7 @@ import ThinkingAnimation from "@/components/ThinkingAnimation"
 import ScrollToBottomButton from "@/components/ScrollToBottomButton"
 import { motion } from "framer-motion"
 import MessageContent from "@/components/MessageContent"
+import Sidebar from "@/components/Sidebar" // Importando o componente Sidebar
 
 interface Message {
   role: "user" | "assistant"
@@ -1068,6 +1069,9 @@ export default function Home() {
     <div className="min-h-screen bg-black text-white relative">
       {/* Renderizar o Header com a prop chatInteracted */}
       <Header chatInteracted={chatInteracted} />
+
+      {/* Adicionar o componente Sidebar */}
+      <Sidebar />
 
       {apiLimitReached && (
         <div className="fixed top-20 left-0 right-0 bg-yellow-600 text-white text-center py-2 px-4 z-50">

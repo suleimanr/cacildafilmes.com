@@ -1,6 +1,5 @@
 import type React from "react"
 import type { Metadata } from "next"
-import Sidebar from "@/components/Sidebar"
 import PortfolioHeader from "@/components/PortfolioHeader"
 
 export const metadata: Metadata = {
@@ -16,7 +15,6 @@ export default function PortfolioLayout({
   return (
     <div className="bg-black min-h-screen">
       <PortfolioHeader />
-      <Sidebar />
       <div className="pt-8 sm:pt-12">{children}</div>
     </div>
   )
