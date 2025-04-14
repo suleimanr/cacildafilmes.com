@@ -22,7 +22,7 @@ const nextConfig = {
     unoptimized: true,
   },
   experimental: {
-    serverComponentsExternalPackages: ['sharp'],
+    serverExternalPackages: ['sharp'], // Atualizado de serverComponentsExternalPackages para serverExternalPackages
   },
 }
 
