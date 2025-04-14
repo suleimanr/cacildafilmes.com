@@ -1065,7 +1065,8 @@ export default function Home() {
   }, [checkIfAtBottom])
 
   return (
-    <div className="min-h-screen bg-black text-white relative">
+    // Modificar a div principal para melhorar a responsividade
+    <div className="min-h-screen bg-black text-white relative overflow-hidden">
       {/* Renderizar o Header com a prop chatInteracted */}
       <Header chatInteracted={chatInteracted} />
 
@@ -1085,7 +1086,7 @@ export default function Home() {
               ref={chatContainerRef}
               className="h-full overflow-y-scroll p-2 sm:p-4 md:p-6 lg:p-8 pb-40 sm:pb-40 scrollbar-visible smooth-scroll"
               id="chat-messages"
-              style={{ maxHeight: "calc(100vh - 200px)" }}
+              style={{ maxHeight: "calc(100vh - 180px)" }} /* Ajustado para melhor visualização em mobile */
             >
               <div className="max-w-4xl mx-auto">
                 <div className="flex flex-col space-y-4">
@@ -1093,13 +1094,15 @@ export default function Home() {
                     <div
                       key={message.id}
                       id={message.id}
-                      className={`mb-6 sm:mb-8 md:mb-12 message-item ${message.role === "user" ? "pl-2 sm:pl-8 md:pl-16" : ""}`}
+                      className={`mb-4 sm:mb-6 md:mb-8 message-item ${message.role === "user" ? "pl-1 sm:pl-4 md:pl-8" : ""}`} /* Reduzido o padding para mobile */
                     >
                       {message.role === "user" && (
-                        <div className="uppercase text-white mb-2 tracking-wider text-sm sm:text-base">VOCÊ:</div>
+                        <div className="uppercase text-white mb-1 sm:mb-2 tracking-wider text-xs sm:text-sm">VOCÊ:</div>
                       )}
                       {message.role === "assistant" && (
-                        <div className="uppercase text-white mb-2 tracking-wider text-sm sm:text-base">CACILDA:</div>
+                        <div className="uppercase text-white mb-1 sm:mb-2 tracking-wider text-xs sm:text-sm">
+                          CACILDA:
+                        </div>
                       )}
                       {message.cardType ? (
                         <ColoredResponseCard
@@ -1125,7 +1128,9 @@ export default function Home() {
                           content={message.content}
                         />
                       ) : (
-                        <div className="leading-relaxed text-sm sm:text-base md:text-lg text-white font-sans">
+                        <div className="leading-relaxed text-xs sm:text-sm md:text-base text-white font-sans">
+                          {" "}
+                          {/* Reduzido o tamanho do texto para mobile */}
                           <MessageContent content={message.content} />
                         </div>
                       )}
@@ -1135,8 +1140,10 @@ export default function Home() {
                 {
                   // Modificando apenas a parte relevante onde o ThinkingAnimation é renderizado
                   isThinking && (
-                    <div className="mb-6 sm:mb-8 md:mb-12 message-item">
-                      <div className="uppercase text-white mb-2 tracking-wider text-sm sm:text-base">CACILDA:</div>
+                    <div className="mb-4 sm:mb-6 md:mb-8 message-item">
+                      <div className="uppercase text-white mb-1 sm:mb-2 tracking-wider text-xs sm:text-sm">
+                        CACILDA:
+                      </div>
                       <div className="typing-indicator">
                         <span></span>
                         <span></span>
@@ -1164,7 +1171,7 @@ export default function Home() {
 
         {/* Campo de entrada animado que muda de posição */}
         <motion.div
-          className="fixed left-0 right-0 p-2 border-t border-gray-800 bg-black"
+          className="fixed left-0 right-0 p-2 sm:p-4 border-t border-gray-800 bg-black"
           initial={{ bottom: 0 }}
           animate={{
             bottom: isInitialPosition ? "calc(50vh - 120px)" : 0,
@@ -1180,7 +1187,7 @@ export default function Home() {
                   onChange={handleInputChange}
                   onKeyDown={handleKeyDown}
                   placeholder="Digite sua mensagem..."
-                  className="w-full bg-black text-white border border-gray-800 rounded-lg pr-20 min-h-[60px] max-h-[120px] resize-none"
+                  className="w-full bg-black text-white border border-gray-800 rounded-lg pr-14 min-h-[50px] max-h-[100px] resize-none text-sm sm:text-base" /* Ajustado para mobile */
                   rows={1}
                 />
                 {hashtagSuggestions.length > 0 && (
@@ -1196,7 +1203,7 @@ export default function Home() {
                               textareaRef.current.focus()
                             }
                           }}
-                          className="px-2 py-1 bg-gray-700 hover:bg-gray-600 rounded-md text-sm text-white"
+                          className="px-2 py-1 bg-gray-700 hover:bg-gray-600 rounded-md text-xs sm:text-sm text-white"
                         >
                           {tag}
                         </button>
@@ -1215,7 +1222,14 @@ export default function Home() {
                     } transition-colors duration-300 flex items-center justify-center`}
                     aria-label="Enviar mensagem"
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-4 w-4 sm:h-5 sm:w-5"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      {" "}
+                      {/* Reduzido o tamanho do ícone para mobile */}
                       <path
                         fillRule="evenodd"
                         d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.707l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13a1 1 0 102 0V9.414l1.293 1.293a1 1 0 001.414-1.414z"
@@ -1227,7 +1241,9 @@ export default function Home() {
               </div>
             </form>
 
-            <div className="mt-4 flex justify-center">
+            <div className="mt-2 sm:mt-4 flex justify-center">
+              {" "}
+              {/* Reduzido o margin para mobile */}
               <QuickAccessButtons onButtonClick={handleQuickAccessClick} />
             </div>
           </div>

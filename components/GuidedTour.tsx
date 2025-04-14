@@ -45,7 +45,7 @@ const tourSteps: TourStep[] = [
   {
     title: "Menu Lateral",
     description:
-      "Clique no ícone 'C' para abrir o menu lateral. Lá você encontrará links para a página inicial e para nosso portfólio completo com todos os vídeos organizados por categoria.",
+      "Clique no ícone 'C' da Cacilda no canto superior esquerdo da tela para abrir o menu lateral. Lá você encontrará links para a página inicial e para nosso portfólio completo com todos os vídeos organizados por categoria.",
     target: ".sidebar-toggle",
     position: "right",
     highlight: true,
@@ -56,14 +56,6 @@ const tourSteps: TourStep[] = [
       "Na página de portfólio você encontrará um slider interativo com nossos melhores trabalhos e todos os vídeos organizados por categorias. É a melhor maneira de explorar nossos projetos!",
     target: ".sidebar-toggle",
     position: "right",
-    highlight: true,
-  },
-  {
-    title: "Botão de Áudio",
-    description:
-      "Este botão ativa ou desativa a interação por áudio. Quando ativado, você verá uma visualização de áudio na tela enquanto conversamos.",
-    target: ".audio-button",
-    position: "left", // Mudei para "left" para garantir que o popup apareça à esquerda
     highlight: true,
   },
   {

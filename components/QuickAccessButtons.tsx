@@ -42,12 +42,12 @@ const QuickAccessButtons: React.FC<QuickAccessButtonsProps> = ({ onButtonClick, 
   ]
 
   return (
-    <div className="flex flex-wrap justify-center gap-2 sm:gap-3 mt-2">
+    <div className={`flex flex-wrap justify-center gap-1 sm:gap-2 ${className} quick-access-buttons`}>
       {buttons.map((button, index) => (
         <button
           key={index}
           onClick={() => onButtonClick(button.topic)}
-          className="bg-black text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-900 transition-colors border border-white"
+          className="bg-black text-white px-2 py-1 sm:px-3 sm:py-2 rounded-md text-xs sm:text-sm font-medium hover:bg-gray-900 transition-colors border border-white"
         >
           {button.label}
         </button>

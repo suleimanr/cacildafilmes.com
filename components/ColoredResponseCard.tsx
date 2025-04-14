@@ -103,7 +103,7 @@ const ColoredResponseCard: React.FC<ColoredResponseCardProps> = ({
 
   return (
     <div
-      className="rounded-lg overflow-hidden shadow-lg transition-all duration-300 hover:shadow-xl cursor-pointer mb-6"
+      className="rounded-lg overflow-hidden shadow-lg transition-all duration-300 hover:shadow-xl cursor-pointer mb-4 sm:mb-6"
       onClick={toggleExpand}
     >
       {/* Imagem com fundo colorido */}
@@ -111,7 +111,7 @@ const ColoredResponseCard: React.FC<ColoredResponseCardProps> = ({
         <img
           src={getImage() || "/placeholder.svg"}
           alt={title}
-          className="w-full h-48 sm:h-56 md:h-64 object-cover"
+          className="w-full h-36 sm:h-48 md:h-64 object-cover"
           onError={(e) => {
             // Fallback para placeholder se a imagem não carregar
             const target = e.target as HTMLImageElement
@@ -122,19 +122,23 @@ const ColoredResponseCard: React.FC<ColoredResponseCardProps> = ({
       </div>
 
       {/* Informações do card com fundo preto */}
-      <div className="bg-black text-white p-4">
-        <div className="text-gray-400 text-sm font-medium mb-1">{getCategory()}</div>
-        <h3 className="text-xl sm:text-2xl font-bold mb-1">{title}</h3>
-        <p className="text-gray-300 text-sm">{subtitle}</p>
+      <div className="bg-black text-white p-3 sm:p-4">
+        <div className="text-gray-400 text-xs sm:text-sm font-medium mb-1">{getCategory()}</div>
+        <h3 className="text-lg sm:text-xl md:text-2xl font-bold mb-1">{title}</h3>
+        <p className="text-gray-300 text-xs sm:text-sm">{subtitle}</p>
 
         {/* Botão de expandir/retrair */}
         {content && (
           <div
-            className="mt-3 flex items-center text-sm text-gray-400 hover:text-white transition-colors"
+            className="mt-2 sm:mt-3 flex items-center text-xs sm:text-sm text-gray-400 hover:text-white transition-colors"
             onClick={toggleExpand}
           >
             <span className="mr-1">{isExpanded ? "Ver menos" : "Ver mais"}</span>
-            {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+            {isExpanded ? (
+              <ChevronUp size={14} className="sm:size-16" />
+            ) : (
+              <ChevronDown size={14} className="sm:size-16" />
+            )}
           </div>
         )}
 
@@ -152,14 +156,14 @@ const ColoredResponseCard: React.FC<ColoredResponseCardProps> = ({
               transition={{ duration: 0.3, ease: "easeInOut" }}
               style={{ overflow: "hidden" }}
             >
-              <div className="border-t border-gray-800 pt-3 mt-3">
-                {content && <p className="text-gray-300 text-sm">{content}</p>}
+              <div className="border-t border-gray-800 pt-2 sm:pt-3 mt-2 sm:mt-3">
+                {content && <p className="text-gray-300 text-xs sm:text-sm">{content}</p>}
 
                 {/* Botão de ação - apenas para o card de portfólio */}
                 {type === "portfolio" && (
                   <a
                     href="/portfolio"
-                    className="block mt-4 bg-white text-black py-2 px-4 rounded hover:bg-gray-100 text-center text-sm font-medium transition-colors"
+                    className="block mt-3 sm:mt-4 bg-white text-black py-1 sm:py-2 px-3 sm:px-4 rounded hover:bg-gray-100 text-center text-xs sm:text-sm font-medium transition-colors"
                     onClick={(e) => {
                       e.stopPropagation()
                       if (onClick) onClick()
@@ -171,31 +175,31 @@ const ColoredResponseCard: React.FC<ColoredResponseCardProps> = ({
 
                 {/* Informações de contato */}
                 {type === "contato" && (
-                  <div className="mt-4">
-                    <p className="text-sm text-gray-300 mb-2">Entre em contato conosco:</p>
+                  <div className="mt-3 sm:mt-4">
+                    <p className="text-xs sm:text-sm text-gray-300 mb-2">Entre em contato conosco:</p>
                     <div className="space-y-2">
                       <a
                         href="tel:+5511948878572"
-                        className="flex items-center text-sm text-gray-300 hover:text-white transition-colors"
+                        className="flex items-center text-xs sm:text-sm text-gray-300 hover:text-white transition-colors"
                         onClick={(e) => e.stopPropagation()}
                       >
-                        <Phone className="mr-2" size={16} />
+                        <Phone className="mr-2" size={14} />
                         +55 11 94887-8572
                       </a>
                       <a
                         href="mailto:atendimento@cacildafilmes.com"
-                        className="flex items-center text-sm text-gray-300 hover:text-white transition-colors"
+                        className="flex items-center text-xs sm:text-sm text-gray-300 hover:text-white transition-colors"
                         onClick={(e) => e.stopPropagation()}
                       >
-                        <Mail className="mr-2" size={16} />
+                        <Mail className="mr-2" size={14} />
                         atendimento@cacildafilmes.com
                       </a>
                       <a
                         href="https://instagram.com/cacildafilmes"
-                        className="flex items-center text-sm text-gray-300 hover:text-white transition-colors"
+                        className="flex items-center text-xs sm:text-sm text-gray-300 hover:text-white transition-colors"
                         onClick={(e) => e.stopPropagation()}
                       >
-                        <Instagram className="mr-2" size={16} />
+                        <Instagram className="mr-2" size={14} />
                         @cacildafilmes
                       </a>
                     </div>

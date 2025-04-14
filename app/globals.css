@@ -748,11 +748,12 @@ body.default-theme {
   }
 }
 
-/* Adicionando ou modificando a animação para os pontos */
+/* Modificar a animação do indicador de digitação para garantir que os pontos apareçam corretamente */
+
+/* Substituir a definição atual do typing-indicator por: */
 .typing-indicator {
   display: flex;
   align-items: center;
-  justify-content: center;
   margin: 0.5rem 0;
 }
 
@@ -787,5 +788,158 @@ body.default-theme {
   50% {
     transform: scale(1.2);
     opacity: 1;
+  }
+}
+
+/* Adicionar estas classes específicas para melhorar a responsividade em dispositivos móveis */
+
+/* Ajustes para o chat em dispositivos móveis */
+@media (max-width: 640px) {
+  /* Reduzir o tamanho da fonte para textos longos */
+  .prose p,
+  .prose li {
+    font-size: 0.875rem;
+    line-height: 1.4;
+  }
+
+  /* Ajustar o tamanho dos títulos */
+  .prose h1 {
+    font-size: 1.25rem;
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .prose h2 {
+    font-size: 1.125rem;
+    margin-top: 0.75rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .prose h3 {
+    font-size: 1rem;
+    margin-top: 0.75rem;
+    margin-bottom: 0.5rem;
+  }
+
+  /* Melhorar a visualização de listas */
+  .prose ul,
+  .prose ol {
+    padding-left: 1.25rem;
+  }
+
+  /* Ajustar o espaçamento das mensagens */
+  .message-item {
+    margin-bottom: 0.75rem;
+  }
+
+  /* Melhorar a visualização dos botões de acesso rápido */
+  .quick-access-buttons button {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.75rem;
+  }
+
+  /* Ajustar o tamanho do indicador de digitação */
+  .typing-indicator span {
+    height: 6px;
+    width: 6px;
+    margin: 0 2px;
+  }
+}
+
+/* Melhorar a visualização em dispositivos muito pequenos */
+@media (max-width: 360px) {
+  .prose p,
+  .prose li {
+    font-size: 0.8125rem;
+  }
+
+  .quick-access-buttons button {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.6875rem;
+  }
+}
+
+/* Garantir que o conteúdo não ultrapasse os limites da tela */
+.max-w-full {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* Melhorar a visualização de imagens em dispositivos móveis */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Melhorar a rolagem em dispositivos móveis */
+.smooth-scroll {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Garantir que o textarea de entrada se ajuste corretamente */
+textarea {
+  font-size: 16px !important; /* Evita zoom automático em iOS */
+}
+
+/* Melhorar a visualização do header em dispositivos móveis */
+@media (max-width: 640px) {
+  .header-word {
+    font-size: 0.875rem;
+  }
+}
+
+/* Ajustar o posicionamento do botão de enviar em dispositivos móveis */
+@media (max-width: 640px) {
+  .send-button {
+    padding: 0.375rem;
+  }
+
+  .send-button svg {
+    width: 1rem;
+    height: 1rem;
+  }
+}
+
+/* Melhorar a visualização dos cards em dispositivos móveis */
+@media (max-width: 640px) {
+  .colored-response-card {
+    margin-bottom: 0.75rem;
+  }
+
+  .colored-response-card h3 {
+    font-size: 1.125rem;
+  }
+
+  .colored-response-card p {
+    font-size: 0.8125rem;
+  }
+}
+
+/* Garantir que o botão de rolar para o final seja visível e acessível */
+@media (max-width: 640px) {
+  .scroll-to-bottom-button {
+    bottom: 5rem;
+    right: 0.5rem;
+  }
+}
+
+/* Melhorar a visualização do tutorial em dispositivos móveis */
+@media (max-width: 640px) {
+  .tutorial-content {
+    max-width: calc(100vw - 2rem);
+    padding: 0.75rem;
+  }
+
+  .tutorial-title {
+    font-size: 1.125rem;
+  }
+
+  .tutorial-description {
+    font-size: 0.875rem;
+  }
+
+  .tutorial-button {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.75rem;
   }
 }
