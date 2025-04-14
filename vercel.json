@@ -1,6 +1,6 @@
 {
-  "buildCommand": "node scripts/clean-elevenlabs.js && next build",
-  "installCommand": "npm install",
+  "buildCommand": "next build",
+  "installCommand": "npm install --legacy-peer-deps",
   "framework": "nextjs",
   "functions": {
     "app/api/chat/route.ts": {

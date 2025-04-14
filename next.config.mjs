@@ -35,13 +35,6 @@ const nextConfig = {
     }
     
     return config
-  },
-  // Limpar o cache durante o build
-  onDemandEntries: {
-    // Período (em ms) onde o servidor irá manter páginas em buffer
-    maxInactiveAge: 10 * 1000,
-    // Número de páginas que devem ser mantidas simultaneamente sem serem descartadas
-    pagesBufferLength: 1,
   }
 }
 
