@@ -57,7 +57,10 @@ export async function POST(req: Request) {
       lastUserMessage.content.toLowerCase().includes("portfolio")
     ) {
       const portfolioResponse = await generatePortfolioResponse()
-      return NextResponse.json(portfolioResponse)
+      return NextResponse.json({
+        success: true,
+        response: portfolioResponse,
+      })
     }
 
     // Verificar se é uma pergunta complexa
