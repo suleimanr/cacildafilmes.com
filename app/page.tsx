@@ -1134,8 +1134,11 @@ export default function Home() {
                   ))}
                 </div>
                 {isThinking && (
-                  <div className="flex items-center space-x-2 text-white text-lg font-mono mb-8 md:mb-12">
-                    <ThinkingAnimation />
+                  <div className="mb-6 sm:mb-8 md:mb-12 message-item">
+                    <div className="uppercase text-white mb-2 tracking-wider text-sm sm:text-base">CACILDA:</div>
+                    <div className="flex items-center space-x-2 text-white text-lg font-mono">
+                      <ThinkingAnimation />
+                    </div>
                   </div>
                 )}
                 <div ref={messagesEndRef} />

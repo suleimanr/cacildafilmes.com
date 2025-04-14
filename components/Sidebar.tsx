@@ -41,15 +41,15 @@ export default function Sidebar() {
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            className="fixed top-0 left-0 h-screen w-full sm:w-80 bg-black/50 backdrop-blur-sm text-white z-40 flex flex-col border-r border-gray-800"
+            className="fixed top-0 left-0 h-screen w-full sm:w-64 bg-black/50 backdrop-blur-sm text-white z-40 flex flex-col border-r border-gray-800"
             initial={{ x: "-100%" }}
             animate={{ x: 0 }}
             exit={{ x: "-100%" }}
             transition={{ duration: 0.3, ease: "easeInOut" }}
           >
             {/* Cabeçalho com logo */}
-            <div className="p-6 pb-4 flex flex-col items-center border-b border-gray-800">
-              <div className="text-center mb-2 relative w-48 h-16">
+            <div className="p-4 pb-3 flex flex-col items-center border-b border-gray-800">
+              <div className="text-center mb-2 relative w-40 h-14">
                 <Image
                   src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/logo_cacilda_branco-oW4mlHomp8Wf1J1FU4m5d6oVVArDh2.png"
                   alt="CACILDA"
@@ -57,25 +57,25 @@ export default function Sidebar() {
                   className="object-contain"
                 />
               </div>
-              <p className="text-gray-400 text-lg">Produtora Criativa</p>
+              <p className="text-gray-400 text-base">Produtora Criativa</p>
             </div>
 
             {/* Navegação */}
-            <div className="p-6">
-              <h2 className="text-gray-500 text-sm tracking-wider mb-4">NAVEGAÇÃO</h2>
+            <div className="p-4">
+              <h2 className="text-gray-500 text-xs tracking-wider mb-3">NAVEGAÇÃO</h2>
               <nav>
                 <ul className="space-y-2">
                   <li>
                     <Link
                       href="/"
-                      className="flex items-center p-3 rounded-lg hover:bg-gray-900 transition-colors"
+                      className="flex items-center p-2 rounded-lg hover:bg-gray-900 transition-colors"
                       onClick={handleLinkClick}
                     >
-                      <span className="mr-3">
+                      <span className="mr-2">
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
-                          width="24"
-                          height="24"
+                          width="18"
+                          height="18"
                           viewBox="0 0 24 24"
                           fill="none"
                           stroke="currentColor"
@@ -87,7 +87,7 @@ export default function Sidebar() {
                           <polyline points="9 22 9 12 15 12 15 22"></polyline>
                         </svg>
                       </span>
-                      <span className="text-xl">Home</span>
+                      <span className="text-base">Home</span>
                       {typeof window !== "undefined" && window.location.pathname === "/" && (
                         <span className="ml-auto">
                           <span className="w-2 h-2 bg-white rounded-full inline-block"></span>
@@ -98,14 +98,14 @@ export default function Sidebar() {
                   <li>
                     <Link
                       href="/portfolio"
-                      className="flex items-center p-3 rounded-lg hover:bg-gray-900 transition-colors"
+                      className="flex items-center p-2 rounded-lg hover:bg-gray-900 transition-colors"
                       onClick={handleLinkClick}
                     >
-                      <span className="mr-3">
+                      <span className="mr-2">
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
-                          width="24"
-                          height="24"
+                          width="18"
+                          height="18"
                           viewBox="0 0 24 24"
                           fill="none"
                           stroke="currentColor"
@@ -123,7 +123,7 @@ export default function Sidebar() {
                           <line x1="17" y1="7" x2="22" y2="7"></line>
                         </svg>
                       </span>
-                      <span className="text-xl">Portfolio</span>
+                      <span className="text-base">Portfolio</span>
                     </Link>
                   </li>
                 </ul>
@@ -131,9 +131,9 @@ export default function Sidebar() {
             </div>
 
             {/* Destaque */}
-            <div className="px-6 py-4 flex-grow">
-              <h2 className="text-gray-500 text-sm tracking-wider mb-4">DESTAQUE</h2>
-              <div className="bg-gray-900 rounded-lg overflow-hidden">
+            <div className="px-4 py-3 flex-grow">
+              <h2 className="text-gray-500 text-xs tracking-wider mb-3">DESTAQUE</h2>
+              <div className="bg-black rounded-lg overflow-hidden border border-gray-800">
                 <div className="relative aspect-video">
                   <Image
                     src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/sidebar%20aberta-BR5CHIQgaZmOr3QVd9bpQrTjezJLub.png"
@@ -145,17 +145,17 @@ export default function Sidebar() {
                 </div>
                 <Link
                   href="/portfolio"
-                  className="flex items-center justify-between p-4 text-white hover:bg-gray-800 transition-colors"
+                  className="flex items-center justify-between p-3 text-white bg-black hover:bg-gray-900 transition-colors"
                   onClick={handleLinkClick}
                 >
                   <span>Ver portfolio completo</span>
-                  <ChevronRight size={20} />
+                  <ChevronRight size={16} />
                 </Link>
               </div>
             </div>
 
             {/* Footer */}
-            <div className="p-6 text-center text-gray-500 text-sm border-t border-gray-800">
+            <div className="p-4 text-center text-gray-500 text-xs border-t border-gray-800">
               <p>&copy; 2025 Cacilda Filmes</p>
               <p>Todos os direitos reservados</p>
             </div>
@@ -168,8 +168,8 @@ export default function Sidebar() {
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
+                width="20"
+                height="20"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
