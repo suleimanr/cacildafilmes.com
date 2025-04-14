@@ -750,19 +750,20 @@ body.default-theme {
 
 /* Adicionando ou modificando a animação para os pontos */
 .typing-indicator {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  margin: 0 0.5rem;
+  justify-content: center;
+  margin: 0.5rem 0;
 }
 
 .typing-indicator span {
-  height: 8px;
-  width: 8px;
-  margin: 0 1px;
+  height: 10px;
+  width: 10px;
+  margin: 0 3px;
   background-color: #ffffff;
   border-radius: 50%;
   display: inline-block;
-  opacity: 0.4;
+  opacity: 0.6;
 }
 
 .typing-indicator span:nth-child(1) {
@@ -781,7 +782,7 @@ body.default-theme {
   0%,
   100% {
     transform: scale(1);
-    opacity: 0.4;
+    opacity: 0.6;
   }
   50% {
     transform: scale(1.2);
