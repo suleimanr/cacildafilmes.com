@@ -177,21 +177,20 @@ export async function POST(req: Request) {
 
 // Função para processar com Chat Completions (modelo mais rápido)
 async function handleWithChatCompletions(messages: any[]) {
-  console.log("Usando Chat Completions para pergunta simples")
+  console.log("Usando Chat Completions com gpt-4-1106-preview")
 
   try {
     // Preparar mensagens para a API da OpenAI
+    // Apenas enviar as mensagens do usuário e do assistente, sem adicionar instruções de sistema
     const apiMessages = messages.map((msg: any) => ({
       role: msg.role,
       content: msg.content,
     }))
 
-    // Removi a mensagem de sistema para evitar conflitos com as configurações existentes
-
     // Fazer a requisição para a API da OpenAI com retry
     const completion = await withRetry(() =>
       openai.chat.completions.create({
-        model: "gpt-3.5-turbo", // Usando o mesmo modelo que está no dashboard
+        model: "gpt-4-1106-preview", // Usando o modelo específico solicitado
         messages: apiMessages,
         temperature: 0.7,
         stream: true,
