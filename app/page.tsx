@@ -3,13 +3,10 @@
 import React, { useRef } from "react"
 import { useState, useCallback, useEffect } from "react"
 import QuickAccessButtons from "@/components/QuickAccessButtons"
-import ElevenLabsStreaming from "@/components/ElevenLabsStreaming"
-import GalaxyAudioVisualizer from "@/components/GalaxyAudioVisualizer"
 import GuidedTour from "@/components/GuidedTour"
 import Header from "@/components/Header"
 import { v4 as uuidv4 } from "uuid"
 import { Textarea } from "@/components/ui/textarea"
-import WaveformIcon from "@/components/WaveformIcon"
 import ColoredResponseCard, { type CardType } from "@/components/ColoredResponseCard"
 import UploadForm from "@/components/UploadForm"
 import DeleteVideoPopup from "@/components/DeleteVideoPopup"
@@ -19,6 +16,7 @@ import "react-toastify/dist/ReactToastify.css"
 import ThinkingAnimation from "@/components/ThinkingAnimation"
 import ScrollToBottomButton from "@/components/ScrollToBottomButton"
 import { motion } from "framer-motion"
+import MessageContent from "@/components/MessageContent"
 
 interface Message {
   role: "user" | "assistant"
@@ -40,20 +38,11 @@ export default function Home() {
   }, [])
 
   const [messages, setMessages] = useState<Message[]>([])
-  const [isCallActive, setIsCallActive] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [agentAudioData, setAgentAudioData] = useState<Uint8Array | null>(null)
-  const [userAudioData, setUserAudioData] = useState<Uint8Array | null>(null)
-  const [isAgentSpeaking, setIsAgentSpeaking] = useState(false)
-  const [isUserSpeaking, setIsUserSpeaking] = useState(false)
   const [isChatCentered, setIsChatCentered] = useState(true)
   const [isThinking, setIsThinking] = useState(false)
   const [hashtagSuggestions, setHashtagSuggestions] = useState<string[]>([])
   const [apiLimitReached, setApiLimitReached] = useState(false)
-  const audioContextRef = useRef<AudioContext | null>(null)
-  const analyserRef = useRef<AnalyserNode | null>(null)
-  const mediaStreamRef = useRef<MediaStream | null>(null)
-  const animationFrameRef = useRef<number | null>(null)
   const [input, setInput] = useState("")
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
@@ -748,14 +737,6 @@ export default function Home() {
     [messages, quickResponses, shouldUseAssistant, scrollToBottom],
   )
 
-  const toggleCall = useCallback(() => {
-    // Disparar evento de interação com o chat
-    const event = new Event("chatInteraction")
-    window.dispatchEvent(event)
-
-    setIsCallActive((prev) => !prev)
-  }, [])
-
   // Modificar a função handleQuickAccessClick para também atualizar a posição
   const handleQuickAccessClick = useCallback(
     (topic: string) => {
@@ -826,30 +807,22 @@ export default function Home() {
     [handleMessageSent, quickResponses, scrollToBottom],
   )
 
-  const handleAudioData = useCallback((audioData: Uint8Array) => {
-    setAgentAudioData(audioData)
-    setIsAgentSpeaking(true)
-    const timer = setTimeout(() => setIsAgentSpeaking(false), 200)
-    return () => clearTimeout(timer)
-  }, [])
-
+  // Modificar a função handleError para mostrar uma mensagem mais amigável ao usuário
   const handleError = useCallback((error: string) => {
-    console.error("ElevenLabs error:", error)
-    setError(error)
-  }, [])
+    console.error("Error:", error)
 
-  const handleAgentSpeaking = useCallback((isSpeaking: boolean) => {
-    setIsAgentSpeaking(isSpeaking)
-  }, [])
+    // Mensagem mais amigável para o usuário
+    const userFriendlyMessage =
+      error.includes("URL") || error.includes("API")
+        ? "O serviço está temporariamente indisponível. Por favor, tente novamente mais tarde."
+        : error
 
-  const updateUserAudioData = useCallback(() => {
-    if (analyserRef.current) {
-      const dataArray = new Uint8Array(analyserRef.current.frequencyBinCount)
-      analyserRef.current.getByteFrequencyData(dataArray)
-      setUserAudioData(dataArray)
-      setIsUserSpeaking(dataArray.some((value) => value > 0))
-    }
-    animationFrameRef.current = requestAnimationFrame(updateUserAudioData)
+    setError(userFriendlyMessage)
+
+    toast.error("Ocorreu um erro. Por favor, tente novamente mais tarde.", {
+      position: "top-right",
+      autoClose: 5000,
+    })
   }, [])
 
   // Modificar a função handleFirstInteraction para também atualizar a posição
@@ -946,41 +919,6 @@ export default function Home() {
       }
     }
   }
-
-  useEffect(() => {
-    // Só executar no cliente
-    if (!isClient || !isCallActive) return
-
-    const initializeAudio = async () => {
-      try {
-        audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)()
-        analyserRef.current = audioContextRef.current.createAnalyser()
-        analyserRef.current.fftSize = 256
-
-        mediaStreamRef.current = await navigator.mediaDevices.getUserMedia({ audio: true })
-        const source = audioContextRef.current.createMediaStreamSource(mediaStreamRef.current)
-        source.connect(analyserRef.current)
-
-        updateUserAudioData()
-      } catch (error) {
-        console.error("Error initializing audio:", error)
-      }
-    }
-
-    initializeAudio()
-
-    return () => {
-      if (mediaStreamRef.current) {
-        mediaStreamRef.current.getTracks().forEach((track) => track.stop())
-      }
-      if (audioContextRef.current && audioContextRef.current.state !== "closed") {
-        audioContextRef.current.close()
-      }
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current)
-      }
-    }
-  }, [isCallActive, updateUserAudioData, isClient])
 
   // Funções para lidar com os formulários administrativos
   const handleUploadFormSubmit = async (data: any) => {
@@ -1185,7 +1123,7 @@ export default function Home() {
                         />
                       ) : (
                         <div className="leading-relaxed text-sm sm:text-base md:text-lg text-white font-sans">
-                          {message.content}
+                          <MessageContent content={message.content} />
                         </div>
                       )}
                     </div>
@@ -1201,16 +1139,6 @@ export default function Home() {
             </div>
           )}
 
-          {isCallActive && (
-            <GalaxyAudioVisualizer
-              agentAudioData={agentAudioData}
-              userAudioData={userAudioData}
-              isAgentSpeaking={isAgentSpeaking}
-              isUserSpeaking={isUserSpeaking}
-            />
-          )}
-
-          {/* Botão para rolar para o final quando há mensagens não lidas */}
           {/* Botão para rolar para o final quando há mensagens não lidas */}
           {!isAtBottom && (
             <ScrollToBottomButton
@@ -1222,13 +1150,6 @@ export default function Home() {
             />
           )}
         </div>
-
-        <ElevenLabsStreaming
-          isCallActive={isCallActive}
-          onAudioData={handleAudioData}
-          onError={handleError}
-          onAgentSpeaking={handleAgentSpeaking}
-        />
 
         {/* Campo de entrada animado que muda de posição */}
         <motion.div
@@ -1273,16 +1194,6 @@ export default function Home() {
                   </div>
                 )}
                 <div className="absolute right-2 bottom-2 flex items-center space-x-2">
-                  <button
-                    type="button"
-                    onClick={toggleCall}
-                    className={`p-2 rounded-full ${
-                      isCallActive ? "bg-red-600" : "bg-gray-700"
-                    } hover:opacity-80 transition-colors`}
-                    aria-label={isCallActive ? "Encerrar chamada" : "Iniciar chamada de voz"}
-                  >
-                    <WaveformIcon className="w-5 h-5" />
-                  </button>
                   <button
                     type="submit"
                     disabled={!input.trim() || isThinking}

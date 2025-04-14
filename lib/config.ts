@@ -1,29 +1,15 @@
-// !!!ATENÇÃO!!!
-// Este arquivo contém configurações críticas para o ElevenLabs.
-// NÃO MODIFIQUE este arquivo sem um pedido explícito e aprovação.
-// Alterações aqui podem afetar o funcionamento do agente ElevenLabs.
+// Configurações para integrações externas
 
-export const ELEVENLABS_CONFIG = {
-  apiKey: process.env.NEXT_PUBLIC_ELEVENLABS_API_KEY || "",
-  agentId: process.env.NEXT_PUBLIC_ELEVENLABS_AGENT_ID || "",
-  apiBaseUrl: "https://api.elevenlabs.io/v1" as const,
-  wsBaseUrl: "wss://api.elevenlabs.io/v1/convai/conversation" as const,
-}
-
-export const config = {
-  elevenlabs: ELEVENLABS_CONFIG,
-}
-
-// Verificar se as variáveis de ambiente estão configuradas
+// Função para verificar se as configurações do OpenAI estão presentes
 export function checkOpenAIConfig() {
-  const hasApiKey = !!process.env.OPENAI_API_KEY
-  const hasAssistantId = !!process.env.OPENAI_ASSISTANT_ID
+  const isConfigured = !!process.env.OPENAI_API_KEY && !!process.env.OPENAI_ASSISTANT_ID
+
+  const missingVariables = []
+  if (!process.env.OPENAI_API_KEY) missingVariables.push("OPENAI_API_KEY")
+  if (!process.env.OPENAI_ASSISTANT_ID) missingVariables.push("OPENAI_ASSISTANT_ID")
 
   return {
-    isConfigured: hasApiKey && hasAssistantId,
-    missingVariables: {
-      apiKey: !hasApiKey,
-      assistantId: !hasAssistantId,
-    },
+    isConfigured,
+    missingVariables,
   }
 }

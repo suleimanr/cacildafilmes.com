@@ -32,8 +32,8 @@ A Cacilda Filmes é especializada em produção audiovisual para educação corp
 Para visualizar todos os nossos trabalhos em uma interface interativa:
 
 1. Clique no ícone "C" da Cacilda no canto superior esquerdo da tela para abrir a barra lateral
-2. Na barra lateral, você encontrará a opção "Portfolio"
-3. Clique em "Portfolio" para acessar a página completa
+2. Na barra lateral, você encontrará a opção "Portfólio"
+3. Clique em "Portfólio" para acessar a página completa
 
 Na página de portfólio você encontrará:
 - Um slider interativo com nossos principais trabalhos
@@ -61,8 +61,8 @@ A Cacilda Filmes é especializada em produção audiovisual para educação corp
 Para visualizar todos os nossos trabalhos em uma interface interativa:
 
 1. Clique no ícone "C" da Cacilda no canto superior esquerdo da tela para abrir a barra lateral
-2. Na barra lateral, você encontrará a opção "Portfolio"
-3. Clique em "Portfolio" para acessar a página completa
+2. Na barra lateral, você encontrará a opção "Portfólio"
+3. Clique em "Portfólio" para acessar a página completa
 
 Na página de portfólio você encontrará:
 - Um slider interativo com nossos principais trabalhos
