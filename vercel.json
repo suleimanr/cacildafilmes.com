@@ -1,6 +1,6 @@
 {
-  "buildCommand": "next build",
-  "installCommand": "npm install --legacy-peer-deps",
+  "buildCommand": "NODE_OPTIONS='--max-old-space-size=4096' next build",
+  "installCommand": "npm install --legacy-peer-deps --no-optional",
   "framework": "nextjs",
   "functions": {
     "app/api/chat/route.ts": {
