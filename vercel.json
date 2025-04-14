@@ -1,4 +1,7 @@
 {
+  "buildCommand": "node scripts/clean-elevenlabs.js && next build",
+  "installCommand": "npm install",
+  "framework": "nextjs",
   "functions": {
     "app/api/chat/route.ts": {
       "maxDuration": 60

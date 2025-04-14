@@ -22,8 +22,27 @@ const nextConfig = {
     unoptimized: true,
   },
   experimental: {
-    serverExternalPackages: ['sharp'], // Atualizado de serverComponentsExternalPackages para serverExternalPackages
+    serverExternalPackages: ['sharp'],
   },
+  // Adicionar configuração para ignorar erros de build específicos
+  webpack: (config, { isServer }) => {
+    // Ignorar módulos problemáticos
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      // Mapear qualquer importação de ElevenLabs para um módulo vazio
+      '@elevenlabs/elevenlabs-react': false,
+      'elevenlabs': false,
+    }
+    
+    return config
+  },
+  // Limpar o cache durante o build
+  onDemandEntries: {
+    // Período (em ms) onde o servidor irá manter páginas em buffer
+    maxInactiveAge: 10 * 1000,
+    // Número de páginas que devem ser mantidas simultaneamente sem serem descartadas
+    pagesBufferLength: 1,
+  }
 }
 
 export default nextConfig
