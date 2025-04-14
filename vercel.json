@@ -1,5 +1,5 @@
 {
-  "buildCommand": "node scripts/master-remove-elevenlabs.js && NODE_OPTIONS='--max-old-space-size=4096' next build",
+  "buildCommand": "node scripts/fix-elevenlabs-issues.js && NODE_OPTIONS='--max-old-space-size=4096' next build",
   "installCommand": "npm install --legacy-peer-deps --no-optional",
   "framework": "nextjs",
   "functions": {
