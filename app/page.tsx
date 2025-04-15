@@ -687,11 +687,36 @@ export default function Home() {
                 throw new Error(`Server error: ${response.status} ${response.statusText}`)
               }
 
+              // Aqui fazemos o streaming da resposta
+              // Primeiro, clonamos a resposta para extrair o threadId sem consumir o body original
+              const responseClone = response.clone()
+              const contentType = response.headers.get("content-type")
+              if (contentType && contentType.includes("application/json")) {
+                try {
+                  const data = await responseClone.json()
+                  if (data.threadId) {
+                    localStorage.setItem("threadId", data.threadId)
+                    console.log("Thread ID salvo:", data.threadId)
+                  }
+                } catch (err) {
+                  console.error("Erro ao parsear JSON do clone:", err)
+                }
+              } else {
+                try {
+                  const text = await responseClone.text()
+                  console.log("Resposta (texto):", text)
+                } catch (err) {
+                  console.error("Erro ao ler resposta como texto:", err)
+                }
+              }
+
+              // Agora usamos o body original para streaming
               const reader = response.body?.getReader()
               if (!reader) {
                 throw new Error("Não foi possível ler a resposta")
               }
 
+              const assistantMessageIdStream = assistantMessageId // Reutilizamos o id já criado
               const decoder = new TextDecoder()
               let assistantMessage = ""
 
@@ -710,13 +735,13 @@ export default function Home() {
                 }
 
                 setMessages((prev) => {
-                  const index = prev.findIndex((m) => m.id === assistantMessageId)
+                  const index = prev.findIndex((m) => m.id === assistantMessageIdStream)
                   if (index === -1) return prev
                   const newMessages = [...prev]
                   newMessages[index] = {
                     role: "assistant",
                     content: assistantMessage,
-                    id: assistantMessageId,
+                    id: assistantMessageIdStream,
                   }
                   return newMessages
                 })
@@ -863,25 +888,31 @@ export default function Home() {
                 }),
               })
 
-              // Verifica se a resposta está ok
               if (!response.ok) {
                 throw new Error(`Server error: ${response.status} ${response.statusText}`)
               }
 
-              // Clona a resposta para extrair threadId sem consumir o body do response original
               const responseClone = response.clone()
-              try {
-                const data = await responseClone.json()
-                if (data.threadId) {
-                  localStorage.setItem("threadId", data.threadId)
-                  console.log("Thread ID salvo:", data.threadId)
+              const contentType = response.headers.get("content-type")
+              if (contentType && contentType.includes("application/json")) {
+                try {
+                  const data = await responseClone.json()
+                  if (data.threadId) {
+                    localStorage.setItem("threadId", data.threadId)
+                    console.log("Thread ID salvo:", data.threadId)
+                  }
+                } catch (err) {
+                  console.error("Erro ao parsear JSON do clone:", err)
                 }
-              } catch (err) {
-                // Se houver erro no parse (por exemplo, se não for JSON válido) apenas loga o erro
-                console.error("Erro ao parsear JSON do clone:", err)
+              } else {
+                try {
+                  const text = await responseClone.text()
+                  console.log("Resposta (texto):", text)
+                } catch (err) {
+                  console.error("Erro ao ler resposta como texto:", err)
+                }
               }
 
-              // Agora usa o body original para streaming
               const reader = response.body?.getReader()
               if (!reader) {
                 throw new Error("Não foi possível ler a resposta")
@@ -936,7 +967,8 @@ export default function Home() {
             ...prev,
             {
               role: "assistant",
-              content: "Desculpe, ocorreu um erro ao processar sua mensagem. Por favor, tente novamente mais tarde.",
+              content:
+                "Desculpe, ocorreu um erro ao processar sua mensagem. Por favor, tente novamente mais tarde.",
               id: uuidv4(),
             },
           ])
@@ -1293,19 +1325,19 @@ export default function Home() {
                             message.cardType === "portfolio"
                               ? "Portfólio Cacilda Filmes"
                               : message.cardType === "servicos"
-                                ? "Serviços Cacilda Filmes"
-                                : message.cardType === "sobre"
-                                  ? "Sobre a Cacilda Filmes"
-                                  : "Contato Cacilda Filmes"
+                              ? "Serviços Cacilda Filmes"
+                              : message.cardType === "sobre"
+                              ? "Sobre a Cacilda Filmes"
+                              : "Contato Cacilda Filmes"
                           }
                           subtitle={
                             message.cardType === "portfolio"
                               ? "Conheça nossos trabalhos"
                               : message.cardType === "servicos"
-                                ? "O que oferecemos"
-                                : message.cardType === "sobre"
-                                  ? "Quem somos"
-                                  : "Fale conosco"
+                              ? "O que oferecemos"
+                              : message.cardType === "sobre"
+                              ? "Quem somos"
+                              : "Fale conosco"
                           }
                           content={message.content}
                         />
