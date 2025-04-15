@@ -70,7 +70,7 @@ export default function Home() {
   const [showTutorial, setShowTutorial] = useState(false)
   const [tutorialCompleted, setTutorialCompleted] = useState(false)
 
-  // Adicione o estado de interação do chat dentro do componente Home:
+  // Estado de interação do chat
   const [chatInteracted, setChatInteracted] = useState(false)
 
   // Estados para controlar os formulários administrativos
@@ -128,7 +128,7 @@ export default function Home() {
     }
   }, [messages, scrollToBottom, checkForUnreadMessages])
 
-  // Adicione um useEffect para ouvir o evento de interação:
+  // Ouvir o evento de interação com o chat
   useEffect(() => {
     const handleChatInteraction = () => {
       console.log("Home: Chat interaction detected")
@@ -142,7 +142,7 @@ export default function Home() {
     }
   }, [])
 
-  // Adicionar listeners para os eventos dos formulários administrativos
+  // Adicionar listeners para eventos dos formulários administrativos
   useEffect(() => {
     const handleOpenUploadForm = () => {
       setShowUploadForm(true)
@@ -186,7 +186,7 @@ export default function Home() {
     [],
   )
 
-  // Palavras-chave para identificar perguntas que devem ser respondidas pelo Assistant
+  // Palavras-chave para identificar perguntas mais complexas
   const complexQueryKeywords = [
     "roteiro",
     "briefing",
@@ -203,12 +203,8 @@ export default function Home() {
     "elaborar",
   ]
 
-  // Adicionar uma verificação de idioma para as respostas do fallback
-  // Adicionar esta função antes do useEffect que inicializa as mensagens
-
-  // Garantir que todas as respostas estejam em português
+  // Verificar se todas as respostas rápidas estão em português
   useEffect(() => {
-    // Verificar se todas as respostas rápidas estão em português
     for (const key in quickResponses) {
       if (!quickResponses[key].match(/[áàâãéèêíïóôõöúçñÁÀÂÃÉÈÊÍÏÓÔÕÖÚÇÑ]/)) {
         console.warn(`A resposta para "${key}" pode não estar em português.`)
@@ -216,24 +212,20 @@ export default function Home() {
     }
   }, [quickResponses])
 
-  // Modificar a função shouldUseAssistant para incluir instruções de idioma
+  // Modificar a função que decide se o Assistant deve ser usado
   const shouldUseAssistant = useCallback(
     (message: string) => {
       const lowercaseMessage = message.toLowerCase()
-
-      // Verificar se a mensagem contém palavras-chave de consultas complexas
       return (
         complexQueryKeywords.some((keyword) => lowercaseMessage.includes(keyword)) ||
-        // Ou se é uma mensagem longa (provavelmente mais complexa)
         message.length > 100 ||
-        // Ou se contém um ponto de interrogação (provavelmente uma pergunta específica)
         message.includes("?")
       )
     },
     [complexQueryKeywords],
   )
 
-  // Adicionar função para verificar se está no final da conversa
+  // Verificar se o chat está no final
   const checkIfAtBottom = useCallback(() => {
     if (!chatContainerRef.current) return
 
@@ -247,14 +239,12 @@ export default function Home() {
     }
   }, [])
 
-  // Adicionar estas funções de validação antes da função salvarClienteNoSupabase
-
+  // Funções de validação
   const validarEmail = (email: string): boolean => {
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     return regex.test(email)
   }
 
-  // Substituir a função validarTelefone por esta versão melhorada:
   const validarTelefone = (telefone: string): boolean => {
     if (/^(\$?\d{2}\$?\s?)?(\d{4,5})[-.\s]?(\d{4})$/.test(telefone)) {
       return true
@@ -262,7 +252,6 @@ export default function Home() {
     return false
   }
 
-  // Substituir a função formatarTelefone existente por esta versão:
   const formatarTelefone = (telefone: string): string => {
     const numeros = telefone.replace(/\D/g, "")
 
@@ -276,11 +265,10 @@ export default function Home() {
       return `${numeros.slice(0, 4)}-${numeros.slice(4)}`
     }
 
-    return telefone // retorna como veio se não puder formatar
+    return telefone
   }
 
-  // Modificar a função salvarClienteNoSupabase para retornar o resultado corretamente
-
+  // Função para salvar dados do cliente
   const salvarClienteNoSupabase = async (data: ClienteInfo) => {
     try {
       const response = await fetch("/api/salvar-cliente", {
@@ -303,7 +291,7 @@ export default function Home() {
     }
   }
 
-  // Adicionar a função para iniciar o cadastro do cliente
+  // Iniciar cadastro do cliente
   const iniciarCadastroCliente = useCallback(() => {
     const dadosSalvos = localStorage.getItem("cacilda_cliente_info")
     if (!dadosSalvos) {
@@ -325,7 +313,6 @@ export default function Home() {
     }
   }, [scrollToBottom])
 
-  // Verificar se os dados do cliente já estão salvos no localStorage ao carregar a página
   useEffect(() => {
     if (isClient) {
       try {
@@ -341,14 +328,11 @@ export default function Home() {
 
   const handleMessageSent = useCallback(
     async (message: string) => {
-      // Disparar evento de interação com o chat
       const event = new Event("chatInteraction")
       window.dispatchEvent(event)
 
-      // Verificar se estamos no fluxo de coleta de dados
       if (coletandoDados && etapaCadastro) {
         const novaInfo = { ...clienteInfo, [etapaCadastro]: message }
-
         const chaves = Object.keys(camposCadastro)
         const proximaChave = chaves[chaves.indexOf(etapaCadastro as string) + 1]
 
@@ -367,7 +351,6 @@ export default function Home() {
           ])
           setTimeout(scrollToBottom, 100)
         } else {
-          // Validar email e telefone antes de finalizar
           if (etapaCadastro === "email" && !validarEmail(message)) {
             setMessages((prev) => [
               ...prev,
@@ -443,10 +426,8 @@ export default function Home() {
         setIsThinking(true)
 
         try {
-          // Check if this is a special command or common question we can handle locally
           const lowercaseMessage = message.toLowerCase().trim()
 
-          // Verificar comandos administrativos
           if (lowercaseMessage.startsWith("/uploadcacilda")) {
             setShowUploadForm(true)
             setVideoToEdit(null)
@@ -671,7 +652,7 @@ export default function Home() {
             ])
 
             const controller = new AbortController()
-            const timeoutId = setTimeout(() => controller.abort(), 45000) // 45 segundos de timeout
+            const timeoutId = setTimeout(() => controller.abort(), 45000)
 
             try {
               const response = await fetch("/api/chat", {
@@ -816,6 +797,7 @@ export default function Home() {
                   }
                 } catch (fallbackError) {
                   console.error("Fallback error:", fallbackError)
+
                   setMessages((prev) => {
                     const index = prev.findIndex((m) => m.id === assistantMessageId)
                     if (index === -1) return prev
@@ -882,14 +864,19 @@ export default function Home() {
               })
 
               if (response.ok) {
-                const data = await response.json()
+                let data = {}
+                try {
+                  data = await response.json()
+                } catch (err) {
+                  const text = await response.text()
+                  console.error("Erro ao parsear JSON:", text)
+                  data = { error: text }
+                }
                 if (data.threadId) {
                   localStorage.setItem("threadId", data.threadId)
                   console.log("Thread ID salvo:", data.threadId)
                 }
-              }
-
-              if (!response.ok) {
+              } else {
                 throw new Error(`Server error: ${response.status} ${response.statusText}`)
               }
 
@@ -922,7 +909,7 @@ export default function Home() {
                   .replace(/Processando sua solicitação\.\.\./g, "")
 
                 if (cleanedChunk.trim()) {
-                  assistantMessage += cleanedChunk
+                  assistantMessage += chunk
                 }
 
                 setMessages((prev) => {
@@ -1285,7 +1272,9 @@ export default function Home() {
                     <div
                       key={message.id}
                       id={message.id}
-                      className={`mb-4 sm:mb-6 md:mb-8 message-item ${message.role === "user" ? "pl-1 sm:pl-4 md:pl-8" : ""}`}
+                      className={`mb-4 sm:mb-6 md:mb-8 message-item ${
+                        message.role === "user" ? "pl-1 sm:pl-4 md:pl-8" : ""
+                      }`}
                     >
                       {message.role === "user" && (
                         <div className="uppercase text-white mb-1 sm:mb-2 tracking-wider text-xs sm:text-sm">VOCÊ:</div>
@@ -1302,19 +1291,19 @@ export default function Home() {
                             message.cardType === "portfolio"
                               ? "Portfólio Cacilda Filmes"
                               : message.cardType === "servicos"
-                              ? "Serviços Cacilda Filmes"
-                              : message.cardType === "sobre"
-                              ? "Sobre a Cacilda Filmes"
-                              : "Contato Cacilda Filmes"
+                                ? "Serviços Cacilda Filmes"
+                                : message.cardType === "sobre"
+                                  ? "Sobre a Cacilda Filmes"
+                                  : "Contato Cacilda Filmes"
                           }
                           subtitle={
                             message.cardType === "portfolio"
                               ? "Conheça nossos trabalhos"
                               : message.cardType === "servicos"
-                              ? "O que oferecemos"
-                              : message.cardType === "sobre"
-                              ? "Quem somos"
-                              : "Fale conosco"
+                                ? "O que oferecemos"
+                                : message.cardType === "sobre"
+                                  ? "Quem somos"
+                                  : "Fale conosco"
                           }
                           content={message.content}
                         />
@@ -1328,9 +1317,7 @@ export default function Home() {
                 </div>
                 {isThinking && (
                   <div className="mb-4 sm:mb-6 md:mb-8 message-item">
-                    <div className="uppercase text-white mb-1 sm:mb-2 tracking-wider text-xs sm:text-sm">
-                      CACILDA:
-                    </div>
+                    <div className="uppercase text-white mb-1 sm:mb-2 tracking-wider text-xs sm:text-sm">CACILDA:</div>
                     <div className="typing-indicator">
                       <span></span>
                       <span></span>
