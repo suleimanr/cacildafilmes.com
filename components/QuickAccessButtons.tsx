@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { Briefcase, Info, Phone, ImageIcon } from "lucide-react"
+import { Briefcase, Info, Phone, ImageIcon, Video } from "lucide-react"
 
 interface QuickAccessButtonsProps {
   onButtonClick: (topic: string) => void
@@ -38,6 +38,13 @@ const QuickAccessButtons: React.FC<QuickAccessButtonsProps> = ({ onButtonClick, 
       icon: <Phone size={14} />,
       color: "from-emerald-500 to-green-400",
       hoverColor: "hover:from-emerald-600 hover:to-green-500",
+    },
+    {
+      label: "Videoaula",
+      topic: "quero criar uma videoaula",
+      icon: <Video size={14} />,
+      color: "from-red-500 to-orange-400",
+      hoverColor: "hover:from-red-600 hover:to-orange-500",
     },
   ]
 
