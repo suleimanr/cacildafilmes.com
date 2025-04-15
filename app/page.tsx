@@ -16,7 +16,7 @@ import "react-toastify/dist/ReactToastify.css"
 import ScrollToBottomButton from "@/components/ScrollToBottomButton"
 import { motion } from "framer-motion"
 import MessageContent from "@/components/MessageContent"
-import Sidebar from "@/components/Sidebar" // Importando o componente Sidebar
+import Sidebar from "@/components/Sidebar"
 
 interface Message {
   role: "user" | "assistant"
@@ -34,16 +34,11 @@ interface ClienteInfo {
 }
 
 export default function Home() {
-  // Verificar se estamos no servidor ou no cliente
-  const isServer = typeof window === "undefined"
   const [isClient, setIsClient] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const chatContainerRef = useRef<HTMLDivElement>(null)
 
-  // Detectar quando estamos no cliente
-  useEffect(() => {
-    setIsClient(true)
-  }, [])
+  useEffect(() => { setIsClient(true) }, [])
 
   const [messages, setMessages] = useState<Message[]>([])
   const [error, setError] = useState<string | null>(null)
@@ -58,19 +53,16 @@ export default function Home() {
   const [coletandoDados, setColetandoDados] = useState(false)
   const [etapaCadastro, setEtapaCadastro] = useState<null | keyof ClienteInfo>(null)
 
-  // Estados para verificar mensagens não lidas e posição
   const [hasUnreadMessages, setHasUnreadMessages] = useState(false)
   const [unreadCount, setUnreadCount] = useState(0)
   const [isAtBottom, setIsAtBottom] = useState(false)
   const [isInitialPosition, setIsInitialPosition] = useState(true)
   const [isInitialPositionn, setIsInitialPositionn] = useState(true)
 
-  // Estados para o tutorial guiado e interação do chat
   const [showTutorial, setShowTutorial] = useState(false)
   const [tutorialCompleted, setTutorialCompleted] = useState(false)
   const [chatInteracted, setChatInteracted] = useState(false)
 
-  // Estados para os formulários administrativos
   const [showUploadForm, setShowUploadForm] = useState(false)
   const [showDeleteVideoForm, setShowDeleteVideoForm] = useState(false)
   const [showPromptForm, setShowPromptForm] = useState(false)
@@ -84,7 +76,6 @@ export default function Home() {
     telefone: "E por fim, qual é o seu telefone?",
   }
 
-  // Função para rolar para o final das mensagens
   const scrollToBottom = useCallback(() => {
     if (chatContainerRef.current) {
       chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight
@@ -93,59 +84,40 @@ export default function Home() {
     }
   }, [])
 
-  // Verificar se há mensagens não lidas
-  const checkForUnreadMessages = useCallback(() => {
-    if (chatContainerRef.current) {
-      const { scrollTop, scrollHeight, clientHeight } = chatContainerRef.current
-      const isScrolledToBottom = scrollHeight - scrollTop - clientHeight < 100
-      if (!isScrolledToBottom) {
-        setHasUnreadMessages(true)
-        setUnreadCount((prev) => prev + 1)
-      }
-    }
+  const checkIfAtBottom = useCallback(() => {
+    if (!chatContainerRef.current) return
+    const { scrollTop, scrollHeight, clientHeight } = chatContainerRef.current
+    const isBottom = scrollHeight - scrollTop - clientHeight < 50
+    setIsAtBottom(isBottom)
+    if (isBottom) setUnreadCount(0)
   }, [])
 
-  // Atualizar scroll conforme as mensagens mudam
   useEffect(() => {
     if (messages.length > 0) {
       setTimeout(() => {
         if (chatContainerRef.current) {
           const { scrollTop, scrollHeight, clientHeight } = chatContainerRef.current
           const isScrolledToBottom = scrollHeight - scrollTop - clientHeight < 100
-          if (isScrolledToBottom) {
-            scrollToBottom()
-          } else {
-            checkForUnreadMessages()
-          }
+          if (isScrolledToBottom) scrollToBottom()
+          else checkIfAtBottom()
         }
       }, 100)
     }
-  }, [messages, scrollToBottom, checkForUnreadMessages])
+  }, [messages, scrollToBottom, checkIfAtBottom])
 
-  // Ouvir evento de interação com o chat
   useEffect(() => {
     const handleChatInteraction = () => {
       console.log("Home: Chat interaction detected")
       setChatInteracted(true)
     }
     window.addEventListener("chatInteraction", handleChatInteraction)
-    return () => {
-      window.removeEventListener("chatInteraction", handleChatInteraction)
-    }
+    return () => window.removeEventListener("chatInteraction", handleChatInteraction)
   }, [])
 
-  // Listeners para os formulários administrativos
   useEffect(() => {
-    const handleOpenUploadForm = () => {
-      setShowUploadForm(true)
-      setVideoToEdit(null)
-    }
-    const handleOpenDeleteVideoForm = () => {
-      setShowDeleteVideoForm(true)
-    }
-    const handleOpenPromptForm = () => {
-      setShowPromptForm(true)
-    }
+    const handleOpenUploadForm = () => { setShowUploadForm(true); setVideoToEdit(null) }
+    const handleOpenDeleteVideoForm = () => { setShowDeleteVideoForm(true) }
+    const handleOpenPromptForm = () => { setShowPromptForm(true) }
     window.addEventListener("openUploadForm", handleOpenUploadForm)
     window.addEventListener("openDeleteVideoForm", handleOpenDeleteVideoForm)
     window.addEventListener("openPromptForm", handleOpenPromptForm)
@@ -156,25 +128,18 @@ export default function Home() {
     }
   }, [])
 
-  // Respostas rápidas pré-definidas
-  const quickResponses: Record<string, string> = React.useMemo(
-    () => ({
-      olá: "Olá! Como posso ajudar você hoje? Estou aqui para fornecer informações sobre a Cacilda Filmes.",
-      oi: "Olá! Como posso ajudar você hoje? Estou aqui para fornecer informações sobre a Cacilda Filmes.",
-      hello: "Olá! Como posso ajudar você hoje? Estou aqui para fornecer informações sobre a Cacilda Filmes.",
-      contato: `Na Cacilda Filmes, criamos experiências de aprendizagem que aproximam empresas dos seus colaboradores e parceiros — as pessoas que tornam o sucesso possível. Combinamos educação corporativa, storytelling e tecnologia para transformar conteúdo em treinamentos envolventes, inspiradores e com impacto real no dia a dia. Entre em contato conosco.`,
-      "quem é você":
-        "Sou o assistente virtual da Cacilda Filmes, estou aqui para ajudar com informações sobre nossos serviços, portfólio e como podemos ajudar sua empresa com soluções audiovisuais para educação corporativa.",
-      "o que vocês fazem":
-        "# Sobre a Cacilda Filmes\n\nA Cacilda Filmes é uma produtora especializada em educação corporativa para grandes empresas, oferecendo uma variedade de serviços com foco em transformar conhecimento em experiências memoráveis. Com expertise em design, inovação e experiência de aprendizagem, a empresa atua de ponta a ponta na criação de soluções audiovisuais.",
-      serviços: `A Cacilda Filmes desenvolve soluções audiovisuais sob medida para a educação corporativa, entregando experiências que informam, engajam e fortalecem a cultura das empresas. O que fazemos Produzimos conteúdos como videoaulas, vídeos institucionais, documentários corporativos, animações, motion graphics, materiais complementares e ferramentas de avaliação. Tudo é planejado para tornar o aprendizado mais acessível, envolvente e eficaz. Unimos narrativa, estratégia e design para transformar conhecimento em experiências memoráveis. Áreas de Atuação Cultura organizacional Onboarding e integração de novos colaboradores Desenvolvimento de lideranças Fomento ao espírito empreendedor Cada projeto da Cacilda Filmes é pensado para atender às necessidades específicas do cliente, com alto nível de personalização, excelência técnica e foco em resultado.`,
-      portfolio: "",
-      sobre: `Na Cacilda Filmes, a gente faz muito mais do que vídeos. Somos uma produtora de conteúdo especializada em educação corporativa que entrega impacto real para grandes empresas. Unimos estratégia, storytelling e tecnologia para transformar conhecimento em experiências que engajam, ensinam e permanecem. Do roteiro à entrega final, criamos soluções sob medida que encantam colaboradores, aceleram treinamentos e fortalecem a cultura organizacional. Leve o aprendizado a outro nível, fale com a gente. A Cacilda entrega conteúdo que conecta, transforma e dá resultado.`,
-    }),
-    []
-  )
+  const quickResponses: Record<string, string> = React.useMemo(() => ({
+    olá: "Olá! Como posso ajudar você hoje? Estou aqui para fornecer informações sobre a Cacilda Filmes.",
+    oi: "Olá! Como posso ajudar você hoje? Estou aqui para fornecer informações sobre a Cacilda Filmes.",
+    hello: "Olá! Como posso ajudar você hoje? Estou aqui para fornecer informações sobre a Cacilda Filmes.",
+    contato: `Na Cacilda Filmes, criamos experiências de aprendizagem que aproximam empresas dos seus colaboradores e parceiros — as pessoas que tornam o sucesso possível. Entre em contato conosco.`,
+    "quem é você": "Sou o assistente virtual da Cacilda Filmes, aqui para ajudar com informações sobre nossos serviços e portfólio.",
+    "o que vocês fazem": "# Sobre a Cacilda Filmes\n\nSomos uma produtora especializada em educação corporativa, criando soluções audiovisuais completas.",
+    serviços: `Produzimos videoaulas, vídeos institucionais, documentários, animações, e muito mais, pensando sempre na personalização e na excelência.`,
+    portfolio: "",
+    sobre: `Somos muito mais do que vídeos – entregamos experiências que transformam o aprendizado nas empresas.`,
+  }), [])
 
-  // Palavras-chave para identificar perguntas mais complexas
   const complexQueryKeywords = [
     "roteiro",
     "briefing",
@@ -191,7 +156,6 @@ export default function Home() {
     "elaborar",
   ]
 
-  // Verificar se todas as respostas rápidas estão em português
   useEffect(() => {
     for (const key in quickResponses) {
       if (!quickResponses[key].match(/[áàâãéèêíïóôõöúçñÁÀÂÃÉÈÊÍÏÓÔÕÖÚÇÑ]/)) {
@@ -200,7 +164,6 @@ export default function Home() {
     }
   }, [quickResponses])
 
-  // Função que decide se deve usar a Assistant API
   const shouldUseAssistant = useCallback(
     (message: string) => {
       const lowercaseMessage = message.toLowerCase()
@@ -213,42 +176,17 @@ export default function Home() {
     [complexQueryKeywords],
   )
 
-  // Verificar se o chat está no final
-  const checkIfAtBottom = useCallback(() => {
-    if (!chatContainerRef.current) return
-    const container = chatContainerRef.current
-    const isBottom = Math.abs(container.scrollHeight - container.scrollTop - container.clientHeight) < 50
-    setIsAtBottom(isBottom)
-    if (isBottom) {
-      setUnreadCount(0)
-    }
-  }, [])
-
-  // Funções de validação
-  const validarEmail = (email: string): boolean => {
-    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    return regex.test(email)
-  }
-
-  const validarTelefone = (telefone: string): boolean => {
-    return /^(\$?\d{2}\$?\s?)?(\d{4,5})[-.\s]?(\d{4})$/.test(telefone)
-  }
-
+  const validarEmail = (email: string): boolean => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+  const validarTelefone = (telefone: string): boolean => /^(\$?\d{2}\$?\s?)?(\d{4,5})[-.\s]?(\d{4})$/.test(telefone)
   const formatarTelefone = (telefone: string): string => {
     const numeros = telefone.replace(/\D/g, "")
-    if (numeros.length === 11) {
-      return `(${numeros.slice(0, 2)}) ${numeros.slice(2, 7)}-${numeros.slice(7)}`
-    } else if (numeros.length === 10) {
-      return `(${numeros.slice(0, 2)}) ${numeros.slice(2, 6)}-${numeros.slice(6)}`
-    } else if (numeros.length === 9) {
-      return `${numeros.slice(0, 5)}-${numeros.slice(5)}`
-    } else if (numeros.length === 8) {
-      return `${numeros.slice(0, 4)}-${numeros.slice(4)}`
-    }
+    if (numeros.length === 11) return `(${numeros.slice(0, 2)}) ${numeros.slice(2, 7)}-${numeros.slice(7)}`
+    else if (numeros.length === 10) return `(${numeros.slice(0, 2)}) ${numeros.slice(2, 6)}-${numeros.slice(6)}`
+    else if (numeros.length === 9) return `${numeros.slice(0, 5)}-${numeros.slice(5)}`
+    else if (numeros.length === 8) return `${numeros.slice(0, 4)}-${numeros.slice(4)}`
     return telefone
   }
 
-  // Função para salvar dados do cliente no Supabase
   const salvarClienteNoSupabase = async (data: ClienteInfo) => {
     try {
       const response = await fetch("/api/salvar-cliente", {
@@ -269,7 +207,6 @@ export default function Home() {
     }
   }
 
-  // Fluxo de cadastro: Iniciar cadastro do cliente
   const iniciarCadastroCliente = useCallback(() => {
     const dadosSalvos = localStorage.getItem("cacilda_cliente_info")
     if (!dadosSalvos) {
@@ -278,11 +215,7 @@ export default function Home() {
       setEtapaCadastro("nome_completo")
       setMessages((prev) => [
         ...prev,
-        {
-          role: "assistant",
-          content: camposCadastro["nome_completo"],
-          id: uuidv4(),
-        },
+        { role: "assistant", content: camposCadastro["nome_completo"], id: uuidv4() },
       ])
       scrollToBottom()
     } else {
@@ -304,43 +237,33 @@ export default function Home() {
     }
   }, [isClient])
 
-  // Função principal de envio de mensagem
   const handleMessageSent = useCallback(
     async (message: string) => {
       const event = new Event("chatInteraction")
       window.dispatchEvent(event)
 
-      // Se estivermos no fluxo de cadastro, trata a mensagem de forma especial
+      // Se estiver em fluxo de cadastro, trate a resposta e retorne
       if (coletandoDados && etapaCadastro) {
         const novaInfo = { ...clienteInfo, [etapaCadastro]: message }
         const chaves = Object.keys(camposCadastro)
         const proximaChave = chaves[chaves.indexOf(etapaCadastro as string) + 1]
         setClienteInfo(novaInfo)
-
         if (proximaChave) {
           setEtapaCadastro(proximaChave as keyof ClienteInfo)
           setMessages((prev) => [
             ...prev,
             { role: "user", content: message, id: uuidv4() },
-            {
-              role: "assistant",
-              content: camposCadastro[proximaChave as keyof typeof camposCadastro],
-              id: uuidv4(),
-            },
+            { role: "assistant", content: camposCadastro[proximaChave as keyof typeof camposCadastro], id: uuidv4() },
           ])
           setTimeout(scrollToBottom, 100)
-          return
+          return  // Importante: encerra o processamento para cadastro
         } else {
-          // Se for a etapa final, valida email e telefone se necessário
+          // Etapa final: validações
           if (etapaCadastro === "email" && !validarEmail(message)) {
             setMessages((prev) => [
               ...prev,
               { role: "user", content: message, id: uuidv4() },
-              {
-                role: "assistant",
-                content: "O email informado parece inválido. Por favor, informe um email válido:",
-                id: uuidv4(),
-              },
+              { role: "assistant", content: "O email informado parece inválido. Por favor, informe um email válido:", id: uuidv4() },
             ])
             setTimeout(scrollToBottom, 100)
             return
@@ -350,12 +273,7 @@ export default function Home() {
               setMessages((prev) => [
                 ...prev,
                 { role: "user", content: message, id: uuidv4() },
-                {
-                  role: "assistant",
-                  content:
-                    "O telefone informado parece inválido. Por favor, informe um telefone válido, como (11) 91234-5678:",
-                  id: uuidv4(),
-                },
+                { role: "assistant", content: "O telefone informado parece inválido. Por favor, informe um telefone válido, como (11) 91234-5678:", id: uuidv4() },
               ])
               setTimeout(scrollToBottom, 100)
               return
@@ -365,11 +283,7 @@ export default function Home() {
             setMessages((prev) => [
               ...prev,
               { role: "user", content: telefoneFormatado, id: uuidv4() },
-              {
-                role: "assistant",
-                content: "Perfeito! Obrigado pelos dados. Podemos seguir com a criação da videoaula agora 😊",
-                id: uuidv4(),
-              },
+              { role: "assistant", content: "Perfeito! Obrigado pelos dados. Podemos seguir com a criação da videoaula agora 😊", id: uuidv4() },
             ])
             const novaInfoFinal = { ...novaInfo, [etapaCadastro]: telefoneFormatado }
             localStorage.setItem("cacilda_cliente_info", JSON.stringify(novaInfoFinal))
@@ -377,12 +291,7 @@ export default function Home() {
             if (salvouComSucesso) {
               setMessages((prev) => [
                 ...prev,
-                {
-                  role: "assistant",
-                  content:
-                    "Seus dados foram salvos com sucesso! Nossa equipe entrará em contato em breve para discutir os detalhes da sua videoaula.",
-                  id: uuidv4(),
-                },
+                { role: "assistant", content: "Seus dados foram salvos com sucesso! Nossa equipe entrará em contato em breve para discutir os detalhes da sua videoaula.", id: uuidv4() },
               ])
             }
             setEtapaCadastro(null)
@@ -395,12 +304,11 @@ export default function Home() {
         }
       }
 
-      // Se não estiver em fluxo de cadastro, prossegue com o envio normal
+      // Fluxo normal: não está em cadastro
       const newUserMessage = { role: "user", content: message, id: uuidv4() }
       setMessages((prev) => [...prev, newUserMessage])
       setError(null)
       setIsThinking(true)
-
       try {
         const lowercaseMessage = message.toLowerCase().trim()
         if (lowercaseMessage.startsWith("/uploadcacilda")) {
@@ -408,11 +316,7 @@ export default function Home() {
           setVideoToEdit(null)
           setMessages((prev) => [
             ...prev,
-            {
-              role: "assistant",
-              content: "Formulário de upload de vídeo aberto.",
-              id: uuidv4(),
-            },
+            { role: "assistant", content: "Formulário de upload de vídeo aberto.", id: uuidv4() },
           ])
           setIsThinking(false)
           return
@@ -421,11 +325,7 @@ export default function Home() {
           setShowDeleteVideoForm(true)
           setMessages((prev) => [
             ...prev,
-            {
-              role: "assistant",
-              content: "Gerenciador de vídeos aberto.",
-              id: uuidv4(),
-            },
+            { role: "assistant", content: "Gerenciador de vídeos aberto.", id: uuidv4() },
           ])
           setIsThinking(false)
           return
@@ -434,11 +334,7 @@ export default function Home() {
           setShowPromptForm(true)
           setMessages((prev) => [
             ...prev,
-            {
-              role: "assistant",
-              content: "Formulário para adicionar à base de conhecimento aberto.",
-              id: uuidv4(),
-            },
+            { role: "assistant", content: "Formulário para adicionar à base de conhecimento aberto.", id: uuidv4() },
           ])
           setIsThinking(false)
           return
@@ -448,11 +344,7 @@ export default function Home() {
           setClienteInfo(null)
           setMessages((prev) => [
             ...prev,
-            {
-              role: "assistant",
-              content: "Dados do cliente removidos com sucesso.",
-              id: uuidv4(),
-            },
+            { role: "assistant", content: "Dados do cliente removidos com sucesso.", id: uuidv4() },
           ])
           setIsThinking(false)
           return
@@ -461,11 +353,7 @@ export default function Home() {
           setTimeout(() => {
             setMessages((prev) => [
               ...prev,
-              {
-                role: "assistant",
-                content: quickResponses[lowercaseMessage],
-                id: uuidv4(),
-              },
+              { role: "assistant", content: quickResponses[lowercaseMessage], id: uuidv4() },
             ])
             setIsThinking(false)
           }, 500)
@@ -492,12 +380,7 @@ export default function Home() {
               if (data.success && data.response) {
                 setMessages((prev) => [
                   ...prev,
-                  {
-                    role: "assistant",
-                    content: data.response,
-                    id: uuidv4(),
-                    cardType: "portfolio",
-                  },
+                  { role: "assistant", content: data.response, id: uuidv4(), cardType: "portfolio" },
                 ])
                 setIsThinking(false)
                 return
@@ -507,12 +390,7 @@ export default function Home() {
             setTimeout(() => {
               setMessages((prev) => [
                 ...prev,
-                {
-                  role: "assistant",
-                  content: quickResponses["portfolio"],
-                  id: uuidv4(),
-                  cardType: "portfolio",
-                },
+                { role: "assistant", content: quickResponses["portfolio"], id: uuidv4(), cardType: "portfolio" },
               ])
               setIsThinking(false)
             }, 800)
@@ -522,12 +400,7 @@ export default function Home() {
             setTimeout(() => {
               setMessages((prev) => [
                 ...prev,
-                {
-                  role: "assistant",
-                  content: quickResponses["portfolio"],
-                  id: uuidv4(),
-                  cardType: "portfolio",
-                },
+                { role: "assistant", content: quickResponses["portfolio"], id: uuidv4(), cardType: "portfolio" },
               ])
               setIsThinking(false)
             }, 800)
@@ -543,12 +416,7 @@ export default function Home() {
           setTimeout(() => {
             setMessages((prev) => [
               ...prev,
-              {
-                role: "assistant",
-                content: quickResponses["serviços"],
-                id: uuidv4(),
-                cardType: "servicos",
-              },
+              { role: "assistant", content: quickResponses["serviços"], id: uuidv4(), cardType: "servicos" },
             ])
             setIsThinking(false)
           }, 800)
@@ -567,16 +435,9 @@ export default function Home() {
           setTimeout(() => {
             setMessages((prev) => [
               ...prev,
-              {
-                role: "assistant",
-                content:
-                  "Ótimo! Para criarmos uma videoaula personalizada, precisamos de algumas informações suas. Vamos começar?",
-                id: uuidv4(),
-              },
+              { role: "assistant", content: "Ótimo! Para criarmos uma videoaula personalizada, precisamos de algumas informações suas. Vamos começar?", id: uuidv4() },
             ])
-            setTimeout(() => {
-              iniciarCadastroCliente()
-            }, 1000)
+            setTimeout(() => { iniciarCadastroCliente() }, 1000)
             setIsThinking(false)
           }, 800)
           return
@@ -591,11 +452,7 @@ export default function Home() {
           setTimeout(() => {
             setMessages((prev) => [
               ...prev,
-              {
-                role: "assistant",
-                content: `Olá ${clienteInfo.nome_completo}! Já temos seus dados salvos. Podemos continuar trabalhando na sua videoaula sobre "${clienteInfo.tema_desejado}". Como posso ajudar hoje?`,
-                id: uuidv4(),
-              },
+              { role: "assistant", content: `Olá ${clienteInfo?.nome_completo}! Já temos seus dados salvos. Podemos continuar trabalhando na sua videoaula sobre "${clienteInfo?.tema_desejado}". Como posso ajudar hoje?`, id: uuidv4() },
             ])
             setIsThinking(false)
           }, 800)
@@ -606,11 +463,7 @@ export default function Home() {
           const assistantMessageId = uuidv4()
           setMessages((prev) => [
             ...prev,
-            {
-              role: "assistant",
-              content: "Processando sua solicitação...",
-              id: assistantMessageId,
-            },
+            { role: "assistant", content: "Processando sua solicitação...", id: assistantMessageId },
           ])
 
           const controller = new AbortController()
@@ -626,9 +479,7 @@ export default function Home() {
               }),
               signal: controller.signal,
             })
-
             clearTimeout(timeoutId)
-
             if (!response.ok) {
               const errorData = await response.json().catch(() => ({}))
               if (errorData && errorData.fallbackResponse) {
@@ -636,11 +487,7 @@ export default function Home() {
                   const index = prev.findIndex((m) => m.id === assistantMessageId)
                   if (index === -1) return prev
                   const newMessages = [...prev]
-                  newMessages[index] = {
-                    role: "assistant",
-                    content: errorData.fallbackResponse,
-                    id: assistantMessageId,
-                  }
+                  newMessages[index] = { role: "assistant", content: errorData.fallbackResponse, id: assistantMessageId }
                   return newMessages
                 })
                 setIsThinking(false)
@@ -649,7 +496,7 @@ export default function Home() {
               throw new Error(`Server error: ${response.status} ${response.statusText}`)
             }
 
-            // Clonar a resposta para extrair o threadId sem consumir o body original
+            // Extrair dados extras sem consumir o body
             const responseClone = response.clone()
             const contentType = response.headers.get("content-type")
             if (contentType && contentType.includes("application/json")) {
@@ -671,41 +518,27 @@ export default function Home() {
               }
             }
 
-            // Streaming do corpo original da resposta
+            // Streaming da resposta original
             const reader = response.body?.getReader()
-            if (!reader) {
-              throw new Error("Não foi possível ler a resposta")
-            }
-
+            if (!reader) throw new Error("Não foi possível ler a resposta")
             const decoder = new TextDecoder()
             let assistantMessage = ""
-
             while (true) {
               const { value, done } = await reader.read()
               if (done) break
-
               const chunk = decoder.decode(value, { stream: true })
               const cleanedChunk = chunk
                 .replace(/Gerando resposta\.\.\./g, "")
                 .replace(/Aguardando na fila\.\.\./g, "")
                 .replace(/Processando sua solicitação\.\.\./g, "")
-
-              if (cleanedChunk.trim()) {
-                assistantMessage += cleanedChunk
-              }
-
+              if (cleanedChunk.trim()) assistantMessage += cleanedChunk
               setMessages((prev) => {
                 const index = prev.findIndex((m) => m.id === assistantMessageId)
                 if (index === -1) return prev
                 const newMessages = [...prev]
-                newMessages[index] = {
-                  role: "assistant",
-                  content: assistantMessage,
-                  id: assistantMessageId,
-                }
+                newMessages[index] = { role: "assistant", content: assistantMessage, id: assistantMessageId }
                 return newMessages
               })
-
               scrollToBottom()
             }
           } catch (error: any) {
@@ -715,12 +548,7 @@ export default function Home() {
                 const index = prev.findIndex((m) => m.id === assistantMessageId)
                 if (index === -1) return prev
                 const newMessages = [...prev]
-                newMessages[index] = {
-                  role: "assistant",
-                  content:
-                    "Desculpe, a resposta está demorando mais do que o esperado. Por favor, tente uma pergunta mais simples ou entre em contato pelo email atendimento@cacildafilmes.com.",
-                  id: assistantMessageId,
-                }
+                newMessages[index] = { role: "assistant", content: "Desculpe, a resposta está demorando mais do que o esperado. Por favor, tente uma pergunta mais simples ou entre em contato pelo email atendimento@cacildafilmes.com.", id: assistantMessageId }
                 return newMessages
               })
             } else {
@@ -729,14 +557,9 @@ export default function Home() {
                   const index = prev.findIndex((m) => m.id === assistantMessageId)
                   if (index === -1) return prev
                   const newMessages = [...prev]
-                  newMessages[index] = {
-                    role: "assistant",
-                    content: "Processando com método alternativo...",
-                    id: assistantMessageId,
-                  }
+                  newMessages[index] = { role: "assistant", content: "Processando com método alternativo...", id: assistantMessageId }
                   return newMessages
                 })
-
                 const fallbackResponse = await fetch("/api/chat", {
                   method: "POST",
                   headers: { "Content-Type": "application/json" },
@@ -746,19 +569,13 @@ export default function Home() {
                     timestamp: Date.now(),
                   }),
                 })
-
                 if (!fallbackResponse.ok) {
                   throw new Error("Falha no método alternativo")
                 }
-
                 const reader = fallbackResponse.body?.getReader()
-                if (!reader) {
-                  throw new Error("Não foi possível ler a resposta alternativa")
-                }
-
+                if (!reader) throw new Error("Não foi possível ler a resposta alternativa")
                 const decoder = new TextDecoder()
                 let fallbackContent = ""
-
                 while (true) {
                   const { value, done } = await reader.read()
                   if (done) break
@@ -768,11 +585,7 @@ export default function Home() {
                     const index = prev.findIndex((m) => m.id === assistantMessageId)
                     if (index === -1) return prev
                     const newMessages = [...prev]
-                    newMessages[index] = {
-                      role: "assistant",
-                      content: fallbackContent,
-                      id: assistantMessageId,
-                    }
+                    newMessages[index] = { role: "assistant", content: fallbackContent, id: assistantMessageId }
                     return newMessages
                   })
                   scrollToBottom()
@@ -783,12 +596,7 @@ export default function Home() {
                   const index = prev.findIndex((m) => m.id === assistantMessageId)
                   if (index === -1) return prev
                   const newMessages = [...prev]
-                  newMessages[index] = {
-                    role: "assistant",
-                    content:
-                      "Desculpe, estou enfrentando dificuldades técnicas no momento. Por favor, tente novamente mais tarde ou entre em contato pelo email atendimento@cacildafilmes.com.",
-                    id: assistantMessageId,
-                  }
+                  newMessages[index] = { role: "assistant", content: "Desculpe, estou enfrentando dificuldades técnicas no momento. Por favor, tente novamente mais tarde ou entre em contato pelo email atendimento@cacildafilmes.com.", id: assistantMessageId }
                   return newMessages
                 })
               }
@@ -799,7 +607,6 @@ export default function Home() {
             console.log("Usando resposta local para pergunta simples")
             let bestMatch = null
             let bestMatchScore = 0
-
             for (const [key, response] of Object.entries(quickResponses)) {
               if (key.length < 4) continue
               const keyWords = key.split(" ")
@@ -814,16 +621,11 @@ export default function Home() {
                 bestMatchScore = matchScore
               }
             }
-
             if (bestMatch && bestMatchScore > 0) {
               setTimeout(() => {
                 setMessages((prev) => [
                   ...prev,
-                  {
-                    role: "assistant",
-                    content: bestMatch as string,
-                    id: uuidv4(),
-                  },
+                  { role: "assistant", content: bestMatch as string, id: uuidv4() },
                 ])
                 setIsThinking(false)
                 scrollToBottom()
@@ -862,17 +664,11 @@ export default function Home() {
                 }
               }
               const reader = response.body?.getReader()
-              if (!reader) {
-                throw new Error("Não foi possível ler a resposta")
-              }
+              if (!reader) throw new Error("Não foi possível ler a resposta")
               const assistantMessageId = uuidv4()
               setMessages((prev) => [
                 ...prev,
-                {
-                  role: "assistant",
-                  content: "",
-                  id: assistantMessageId,
-                },
+                { role: "assistant", content: "", id: assistantMessageId },
               ])
               const decoder = new TextDecoder()
               let assistantMessage = ""
@@ -891,11 +687,7 @@ export default function Home() {
                   const index = prev.findIndex((m) => m.id === assistantMessageId)
                   if (index === -1) return prev
                   const newMessages = [...prev]
-                  newMessages[index] = {
-                    role: "assistant",
-                    content: assistantMessage,
-                    id: assistantMessageId,
-                  }
+                  newMessages[index] = { role: "assistant", content: assistantMessage, id: assistantMessageId }
                   return newMessages
                 })
                 scrollToBottom()
@@ -906,12 +698,7 @@ export default function Home() {
           console.error("Error:", error)
           setMessages((prev) => [
             ...prev,
-            {
-              role: "assistant",
-              content:
-                "Desculpe, ocorreu um erro ao processar sua mensagem. Por favor, tente novamente mais tarde.",
-              id: uuidv4(),
-            },
+            { role: "assistant", content: "Desculpe, ocorreu um erro ao processar sua mensagem. Por favor, tente novamente mais tarde.", id: uuidv4() },
           ])
         } finally {
           setIsThinking(false)
@@ -919,16 +706,7 @@ export default function Home() {
         }
       }
     },
-    [
-      messages,
-      quickResponses,
-      shouldUseAssistant,
-      scrollToBottom,
-      clienteInfo,
-      coletandoDados,
-      etapaCadastro,
-      camposCadastro,
-    ],
+    [messages, quickResponses, shouldUseAssistant, scrollToBottom, clienteInfo, coletandoDados, etapaCadastro, camposCadastro]
   )
 
   const handleQuickAccessClick = useCallback(
@@ -952,7 +730,7 @@ export default function Home() {
           cardType = "portfolio"
           content = ""
           break
-        case "serviços":
+        case "servicos":
           cardType = "servicos"
           content = quickResponses["serviços"]
           break
@@ -971,12 +749,7 @@ export default function Home() {
       setTimeout(() => {
         setMessages((prev) => [
           ...prev,
-          {
-            role: "assistant",
-            content: content,
-            id: uuidv4(),
-            cardType: cardType,
-          },
+          { role: "assistant", content: content, id: uuidv4(), cardType: cardType },
         ])
         setTimeout(scrollToBottom, 100)
       }, 500)
@@ -1021,9 +794,7 @@ export default function Home() {
 
   const handleSendMessage = useCallback(
     async (e?: React.FormEvent) => {
-      if (e) {
-        e.preventDefault()
-      }
+      if (e) e.preventDefault()
       if (!input.trim() || isThinking) return
       setIsInitialPosition(false)
       const message = input.trim()
@@ -1048,9 +819,7 @@ export default function Home() {
       try {
         const hasVisitedBefore = localStorage.getItem("hasVisitedBefore")
         if (!hasVisitedBefore && !tutorialCompleted) {
-          const timer = setTimeout(() => {
-            setShowTutorial(true)
-          }, 1500)
+          const timer = setTimeout(() => setShowTutorial(true), 1500)
           return () => clearTimeout(timer)
         }
       } catch (error) {
@@ -1076,9 +845,7 @@ export default function Home() {
       if (data.id) {
         const response = await fetch("/api/update-video", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             id: data.id,
             title: data.title,
@@ -1091,16 +858,12 @@ export default function Home() {
             thumbnailUrl: data.thumbnailUrl,
           }),
         })
-        if (!response.ok) {
-          throw new Error("Falha ao atualizar o vídeo")
-        }
+        if (!response.ok) throw new Error("Falha ao atualizar o vídeo")
         toast.success("Vídeo atualizado com sucesso!")
       } else {
         const response = await fetch("/api/upload-video", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             title: data.title,
             vimeoId: getVimeoId(data.vimeoLink),
@@ -1112,9 +875,7 @@ export default function Home() {
             thumbnailUrl: data.thumbnailUrl,
           }),
         })
-        if (!response.ok) {
-          throw new Error("Falha ao fazer upload do vídeo")
-        }
+        if (!response.ok) throw new Error("Falha ao fazer upload do vídeo")
         toast.success("Vídeo enviado com sucesso!")
       }
       setShowUploadForm(false)
@@ -1128,14 +889,10 @@ export default function Home() {
     try {
       const response = await fetch("/api/delete-video", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id }),
       })
-      if (!response.ok) {
-        throw new Error("Falha ao deletar o vídeo")
-      }
+      if (!response.ok) throw new Error("Falha ao deletar o vídeo")
       toast.success("Vídeo deletado com sucesso!")
     } catch (error) {
       console.error("Erro ao deletar o vídeo:", error)
@@ -1153,14 +910,10 @@ export default function Home() {
     try {
       const response = await fetch("/api/add-knowledge", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ type, content }),
       })
-      if (!response.ok) {
-        throw new Error("Falha ao adicionar à base de conhecimento")
-      }
+      if (!response.ok) throw new Error("Falha ao adicionar à base de conhecimento")
       toast.success("Informação adicionada à base de conhecimento com sucesso!")
       setShowPromptForm(false)
     } catch (error) {
@@ -1178,12 +931,8 @@ export default function Home() {
   const handleNewMessage = useCallback(
     (message: Message) => {
       setMessages((prev) => [...prev, message])
-      if (!isAtBottom && message.role === "assistant") {
-        setUnreadCount((prev) => prev + 1)
-      }
-      if (message.role === "assistant") {
-        setIsThinking(false)
-      }
+      if (!isAtBottom && message.role === "assistant") setUnreadCount((prev) => prev + 1)
+      if (message.role === "assistant") setIsThinking(false)
     },
     [isAtBottom],
   )
@@ -1204,13 +953,11 @@ export default function Home() {
     <div className="min-h-screen bg-black text-white relative overflow-hidden">
       <Header chatInteracted={chatInteracted} />
       <Sidebar />
-
       {apiLimitReached && (
         <div className="fixed top-20 left-0 right-0 bg-yellow-600 text-white text-center py-2 px-4 z-50">
           Estamos operando com capacidade limitada. Algumas funcionalidades podem estar indisponíveis.
         </div>
       )}
-
       <div className="h-screen relative overflow-hidden flex flex-col pt-4">
         <div className="flex-grow relative pb-20">
           {messages.length > 0 && (
@@ -1226,19 +973,13 @@ export default function Home() {
                     <div
                       key={message.id}
                       id={message.id}
-                      className={`mb-4 sm:mb-6 md:mb-8 message-item ${
-                        message.role === "user" ? "pl-1 sm:pl-4 md:pl-8" : ""
-                      }`}
+                      className={`mb-4 sm:mb-6 md:mb-8 message-item ${message.role === "user" ? "pl-1 sm:pl-4 md:pl-8" : ""}`}
                     >
                       {message.role === "user" && (
-                        <div className="uppercase text-white mb-1 sm:mb-2 tracking-wider text-xs sm:text-sm">
-                          VOCÊ:
-                        </div>
+                        <div className="uppercase text-white mb-1 sm:mb-2 tracking-wider text-xs sm:text-sm">VOCÊ:</div>
                       )}
                       {message.role === "assistant" && (
-                        <div className="uppercase text-white mb-1 sm:mb-2 tracking-wider text-xs sm:text-sm">
-                          CACILDA:
-                        </div>
+                        <div className="uppercase text-white mb-1 sm:mb-2 tracking-wider text-xs sm:text-sm">CACILDA:</div>
                       )}
                       {message.cardType ? (
                         <ColoredResponseCard
@@ -1273,9 +1014,7 @@ export default function Home() {
                 </div>
                 {isThinking && (
                   <div className="mb-4 sm:mb-6 md:mb-8 message-item">
-                    <div className="uppercase text-white mb-1 sm:mb-2 tracking-wider text-xs sm:text-sm">
-                      CACILDA:
-                    </div>
+                    <div className="uppercase text-white mb-1 sm:mb-2 tracking-wider text-xs sm:text-sm">CACILDA:</div>
                     <div className="typing-indicator">
                       <span></span>
                       <span></span>
@@ -1287,7 +1026,6 @@ export default function Home() {
               </div>
             </div>
           )}
-
           {!isAtBottom && (
             <ScrollToBottomButton
               onClick={() => {
@@ -1298,14 +1036,10 @@ export default function Home() {
             />
           )}
         </div>
-
         <motion.div
           className="fixed left-0 right-0 p-2 sm:p-4 border-t border-gray-800 bg-black"
           initial={{ bottom: 0 }}
-          animate={{
-            bottom: isInitialPosition ? "calc(50vh - 180px)" : 0,
-            transition: { duration: 0.6, ease: "easeInOut" },
-          }}
+          animate={{ bottom: isInitialPosition ? "calc(50vh - 180px)" : 0, transition: { duration: 0.6, ease: "easeInOut" } }}
         >
           <div className="max-w-4xl mx-auto">
             <form onSubmit={handleSendMessage} className="flex items-end">
@@ -1328,9 +1062,7 @@ export default function Home() {
                           type="button"
                           onClick={() => {
                             setInput((prev) => prev.replace(/#$/, tag + " "))
-                            if (textareaRef.current) {
-                              textareaRef.current.focus()
-                            }
+                            if (textareaRef.current) textareaRef.current.focus()
                           }}
                           className="px-2 py-1 bg-gray-700 hover:bg-gray-600 rounded-md text-xs sm:text-sm text-white"
                         >
@@ -1344,24 +1076,11 @@ export default function Home() {
                   <button
                     type="submit"
                     disabled={!input.trim() || isThinking}
-                    className={`p-2 rounded-full ${
-                      !input.trim() || isThinking
-                        ? "bg-gray-700 text-gray-400 cursor-not-allowed"
-                        : "bg-green-600 text-white hover:bg-green-700"
-                    } transition-colors duration-300 flex items-center justify-center`}
+                    className={`p-2 rounded-full ${!input.trim() || isThinking ? "bg-gray-700 text-gray-400 cursor-not-allowed" : "bg-green-600 text-white hover:bg-green-700"} transition-colors duration-300 flex items-center justify-center`}
                     aria-label="Enviar mensagem"
                   >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-4 w-4 sm:h-5 sm:w-5"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.707l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13a1 1 0 102 0V9.414l1.293 1.293a1 1 0 001.414-1.414z"
-                        clipRule="evenodd"
-                      />
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 sm:h-5 sm:w-5" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.707l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13a1 1 0 102 0V9.414l1.293 1.293a1 1 0 001.414-1.414z" clipRule="evenodd" />
                     </svg>
                   </button>
                 </div>
@@ -1373,50 +1092,21 @@ export default function Home() {
           </div>
         </motion.div>
       </div>
-
       <GuidedTour isOpen={showTutorial} onClose={() => setShowTutorial(false)} onComplete={handleTutorialComplete} />
-
       {tutorialCompleted && (
-        <button
-          onClick={() => setShowTutorial(true)}
-          className="fixed bottom-4 right-4 bg-blue-600 text-white rounded-full p-2 shadow-lg hover:bg-blue-700 transition-colors z-40"
-          aria-label="Abrir tutorial"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-6 w-6"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-            />
+        <button onClick={() => setShowTutorial(true)} className="fixed bottom-4 right-4 bg-blue-600 text-white rounded-full p-2 shadow-lg hover:bg-blue-700 transition-colors z-40" aria-label="Abrir tutorial">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
         </button>
       )}
-
       {showUploadForm && (
-        <UploadForm
-          onClose={() => setShowUploadForm(false)}
-          onSubmit={handleUploadFormSubmit}
-          videoToEdit={videoToEdit}
-        />
+        <UploadForm onClose={() => setShowUploadForm(false)} onSubmit={handleUploadFormSubmit} videoToEdit={videoToEdit} />
       )}
-
       {showDeleteVideoForm && (
-        <DeleteVideoPopup
-          onClose={() => setShowDeleteVideoForm(false)}
-          onDelete={handleDeleteVideo}
-          onEdit={handleEditVideo}
-        />
+        <DeleteVideoPopup onClose={() => setShowDeleteVideoForm(false)} onDelete={handleDeleteVideo} onEdit={handleEditVideo} />
       )}
-
       {showPromptForm && <PromptPopup onClose={() => setShowPromptForm(false)} onSubmit={handlePromptSubmit} />}
-
       <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} closeOnClick pauseOnHover />
     </div>
   )
