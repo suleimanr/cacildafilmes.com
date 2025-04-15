@@ -13,7 +13,7 @@ import DeleteVideoPopup from "@/components/DeleteVideoPopup"
 import PromptPopup from "@/components/PromptPopup"
 import { toast, ToastContainer } from "react-toastify"
 import "react-toastify/dist/ReactToastify.css"
-import ScrollToBottomButton from "@/components/ScrollToBottomButton"
+import ScrollToBottomButton from "@/components/QuickAccessButtons" // Caso seja o componente correto; se não, mantenha o import anterior.
 import { motion } from "framer-motion"
 import MessageContent from "@/components/MessageContent"
 import Sidebar from "@/components/Sidebar"
@@ -132,13 +132,13 @@ export default function Home() {
     olá: "Olá! Como posso ajudar você hoje? Estou aqui para fornecer informações sobre a Cacilda Filmes.",
     oi: "Olá! Como posso ajudar você hoje? Estou aqui para fornecer informações sobre a Cacilda Filmes.",
     hello: "Olá! Como posso ajudar você hoje? Estou aqui para fornecer informações sobre a Cacilda Filmes.",
-    contato: `Na Cacilda Filmes, criamos experiências de aprendizagem que aproximam empresas dos seus colaboradores e parceiros — as pessoas que tornam o sucesso possível. Entre em contato conosco.`,
+    contato: "Na Cacilda Filmes, criamos experiências de aprendizagem que aproximam empresas dos seus colaboradores e parceiros — entre em contato conosco.",
     "quem é você": "Sou o assistente virtual da Cacilda Filmes, aqui para ajudar com informações sobre nossos serviços e portfólio.",
     "o que vocês fazem": "# Sobre a Cacilda Filmes\n\nSomos uma produtora especializada em educação corporativa, criando soluções audiovisuais completas.",
-    serviços: `Produzimos videoaulas, vídeos institucionais, documentários, animações, e muito mais, pensando sempre na personalização e na excelência.`,
+    serviços: "Produzimos videoaulas, vídeos institucionais, documentários, animações, e muito mais, sempre com excelência.",
     portfolio: "",
-    sobre: `Somos muito mais do que vídeos – entregamos experiências que transformam o aprendizado nas empresas.`,
-  }), [])
+    sobre: "Somos muito mais do que vídeos – entregamos experiências que transformam o aprendizado nas empresas.",
+  }), []);
 
   const complexQueryKeywords = [
     "roteiro",
@@ -154,38 +154,44 @@ export default function Home() {
     "ajuda com",
     "preciso de",
     "elaborar",
-  ]
+  ];
 
   useEffect(() => {
     for (const key in quickResponses) {
       if (!quickResponses[key].match(/[áàâãéèêíïóôõöúçñÁÀÂÃÉÈÊÍÏÓÔÕÖÚÇÑ]/)) {
-        console.warn(`A resposta para "${key}" pode não estar em português.`)
+        console.warn(`A resposta para "${key}" pode não estar em português.`);
       }
     }
-  }, [quickResponses])
+  }, [quickResponses]);
 
   const shouldUseAssistant = useCallback(
     (message: string) => {
-      const lowercaseMessage = message.toLowerCase()
+      const lowercaseMessage = message.toLowerCase();
       return (
         complexQueryKeywords.some((keyword) => lowercaseMessage.includes(keyword)) ||
         message.length > 100 ||
         message.includes("?")
-      )
+      );
     },
     [complexQueryKeywords],
-  )
+  );
 
-  const validarEmail = (email: string): boolean => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
-  const validarTelefone = (telefone: string): boolean => /^(\$?\d{2}\$?\s?)?(\d{4,5})[-.\s]?(\d{4})$/.test(telefone)
+  const validarEmail = (email: string): boolean =>
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const validarTelefone = (telefone: string): boolean =>
+    /^(\$?\d{2}\$?\s?)?(\d{4,5})[-.\s]?(\d{4})$/.test(telefone);
   const formatarTelefone = (telefone: string): string => {
-    const numeros = telefone.replace(/\D/g, "")
-    if (numeros.length === 11) return `(${numeros.slice(0, 2)}) ${numeros.slice(2, 7)}-${numeros.slice(7)}`
-    else if (numeros.length === 10) return `(${numeros.slice(0, 2)}) ${numeros.slice(2, 6)}-${numeros.slice(6)}`
-    else if (numeros.length === 9) return `${numeros.slice(0, 5)}-${numeros.slice(5)}`
-    else if (numeros.length === 8) return `${numeros.slice(0, 4)}-${numeros.slice(4)}`
-    return telefone
-  }
+    const numeros = telefone.replace(/\D/g, "");
+    if (numeros.length === 11)
+      return `(${numeros.slice(0, 2)}) ${numeros.slice(2, 7)}-${numeros.slice(7)}`;
+    else if (numeros.length === 10)
+      return `(${numeros.slice(0, 2)}) ${numeros.slice(2, 6)}-${numeros.slice(6)}`;
+    else if (numeros.length === 9)
+      return `${numeros.slice(0, 5)}-${numeros.slice(5)}`;
+    else if (numeros.length === 8)
+      return `${numeros.slice(0, 4)}-${numeros.slice(4)}`;
+    return telefone;
+  };
 
   const salvarClienteNoSupabase = async (data: ClienteInfo) => {
     try {
@@ -193,653 +199,675 @@ export default function Home() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
-      })
+      });
       if (!response.ok) {
-        const errorData = await response.json()
-        console.error("Erro ao salvar cliente:", errorData)
-        return false
+        const errorData = await response.json();
+        console.error("Erro ao salvar cliente:", errorData);
+        return false;
       }
-      const result = await response.json()
-      return result.success === true
+      const result = await response.json();
+      return result.success === true;
     } catch (error) {
-      console.error("Erro ao salvar cliente:", error)
-      return false
+      console.error("Erro ao salvar cliente:", error);
+      return false;
     }
-  }
+  };
 
   const iniciarCadastroCliente = useCallback(() => {
-    const dadosSalvos = localStorage.getItem("cacilda_cliente_info")
+    const dadosSalvos = localStorage.getItem("cacilda_cliente_info");
     if (!dadosSalvos) {
-      setColetandoDados(true)
-      setClienteInfo({})
-      setEtapaCadastro("nome_completo")
+      setColetandoDados(true);
+      setClienteInfo({});
+      setEtapaCadastro("nome_completo");
       setMessages((prev) => [
         ...prev,
         { role: "assistant", content: camposCadastro["nome_completo"], id: uuidv4() },
-      ])
-      scrollToBottom()
+      ]);
+      scrollToBottom();
     } else {
-      const info = JSON.parse(dadosSalvos)
-      setClienteInfo(info)
+      const info = JSON.parse(dadosSalvos);
+      setClienteInfo(info);
     }
-  }, [scrollToBottom])
+  }, [scrollToBottom]);
 
   useEffect(() => {
     if (isClient) {
       try {
-        const dadosSalvos = localStorage.getItem("cacilda_cliente_info")
+        const dadosSalvos = localStorage.getItem("cacilda_cliente_info");
         if (dadosSalvos) {
-          setClienteInfo(JSON.parse(dadosSalvos))
+          setClienteInfo(JSON.parse(dadosSalvos));
         }
       } catch (error) {
-        console.error("Erro ao carregar dados do cliente:", error)
+        console.error("Erro ao carregar dados do cliente:", error);
       }
     }
-  }, [isClient])
+  }, [isClient]);
 
-  const handleMessageSent = useCallback(
-    async (message: string) => {
-      const event = new Event("chatInteraction")
-      window.dispatchEvent(event)
-
-      // Se estiver em fluxo de cadastro, trate a resposta e retorne
-      if (coletandoDados && etapaCadastro) {
-        const novaInfo = { ...clienteInfo, [etapaCadastro]: message }
-        const chaves = Object.keys(camposCadastro)
-        const proximaChave = chaves[chaves.indexOf(etapaCadastro as string) + 1]
-        setClienteInfo(novaInfo)
-        if (proximaChave) {
-          setEtapaCadastro(proximaChave as keyof ClienteInfo)
+  const handleMessageSent = useCallback(async (message: string) => {
+    const event = new Event("chatInteraction");
+    window.dispatchEvent(event);
+    
+    // Fluxo de cadastro
+    if (coletandoDados && etapaCadastro) {
+      const novaInfo = { ...clienteInfo, [etapaCadastro]: message };
+      const chaves = Object.keys(camposCadastro);
+      const proximaChave = chaves[chaves.indexOf(etapaCadastro as string) + 1];
+      setClienteInfo(novaInfo);
+      if (proximaChave) {
+        setEtapaCadastro(proximaChave as keyof ClienteInfo);
+        setMessages((prev) => [
+          ...prev,
+          { role: "user", content: message, id: uuidv4() },
+          {
+            role: "assistant",
+            content: camposCadastro[proximaChave as keyof typeof camposCadastro],
+            id: uuidv4(),
+          },
+        ]);
+        setTimeout(scrollToBottom, 100);
+        return;
+      } else {
+        if (etapaCadastro === "email" && !validarEmail(message)) {
           setMessages((prev) => [
             ...prev,
             { role: "user", content: message, id: uuidv4() },
-            { role: "assistant", content: camposCadastro[proximaChave as keyof typeof camposCadastro], id: uuidv4() },
-          ])
-          setTimeout(scrollToBottom, 100)
-          return  // Importante: encerra o processamento para cadastro
-        } else {
-          // Etapa final: validações
-          if (etapaCadastro === "email" && !validarEmail(message)) {
+            {
+              role: "assistant",
+              content: "O email informado parece inválido. Por favor, informe um email válido:",
+              id: uuidv4(),
+            },
+          ]);
+          setTimeout(scrollToBottom, 100);
+          return;
+        }
+        if (etapaCadastro === "telefone") {
+          if (!validarTelefone(message)) {
             setMessages((prev) => [
               ...prev,
               { role: "user", content: message, id: uuidv4() },
-              { role: "assistant", content: "O email informado parece inválido. Por favor, informe um email válido:", id: uuidv4() },
-            ])
-            setTimeout(scrollToBottom, 100)
-            return
-          }
-          if (etapaCadastro === "telefone") {
-            if (!validarTelefone(message)) {
-              setMessages((prev) => [
-                ...prev,
-                { role: "user", content: message, id: uuidv4() },
-                { role: "assistant", content: "O telefone informado parece inválido. Por favor, informe um telefone válido, como (11) 91234-5678:", id: uuidv4() },
-              ])
-              setTimeout(scrollToBottom, 100)
-              return
-            }
-            const telefoneFormatado = formatarTelefone(message)
-            novaInfo["telefone"] = telefoneFormatado
-            setMessages((prev) => [
-              ...prev,
-              { role: "user", content: telefoneFormatado, id: uuidv4() },
-              { role: "assistant", content: "Perfeito! Obrigado pelos dados. Podemos seguir com a criação da videoaula agora 😊", id: uuidv4() },
-            ])
-            const novaInfoFinal = { ...novaInfo, [etapaCadastro]: telefoneFormatado }
-            localStorage.setItem("cacilda_cliente_info", JSON.stringify(novaInfoFinal))
-            const salvouComSucesso = await salvarClienteNoSupabase(novaInfoFinal)
-            if (salvouComSucesso) {
-              setMessages((prev) => [
-                ...prev,
-                { role: "assistant", content: "Seus dados foram salvos com sucesso! Nossa equipe entrará em contato em breve para discutir os detalhes da sua videoaula.", id: uuidv4() },
-              ])
-            }
-            setEtapaCadastro(null)
-            setColetandoDados(false)
-            setClienteInfo(novaInfoFinal)
-            setTimeout(scrollToBottom, 100)
-            return
-          }
-          return
-        }
-      }
-
-      // Fluxo normal: não está em cadastro
-      const newUserMessage = { role: "user", content: message, id: uuidv4() }
-      setMessages((prev) => [...prev, newUserMessage])
-      setError(null)
-      setIsThinking(true)
-      try {
-        const lowercaseMessage = message.toLowerCase().trim()
-        if (lowercaseMessage.startsWith("/uploadcacilda")) {
-          setShowUploadForm(true)
-          setVideoToEdit(null)
-          setMessages((prev) => [
-            ...prev,
-            { role: "assistant", content: "Formulário de upload de vídeo aberto.", id: uuidv4() },
-          ])
-          setIsThinking(false)
-          return
-        }
-        if (lowercaseMessage.startsWith("/deletecacilda")) {
-          setShowDeleteVideoForm(true)
-          setMessages((prev) => [
-            ...prev,
-            { role: "assistant", content: "Gerenciador de vídeos aberto.", id: uuidv4() },
-          ])
-          setIsThinking(false)
-          return
-        }
-        if (lowercaseMessage.startsWith("/promptcacilda")) {
-          setShowPromptForm(true)
-          setMessages((prev) => [
-            ...prev,
-            { role: "assistant", content: "Formulário para adicionar à base de conhecimento aberto.", id: uuidv4() },
-          ])
-          setIsThinking(false)
-          return
-        }
-        if (lowercaseMessage.startsWith("/limparcliente")) {
-          localStorage.removeItem("cacilda_cliente_info")
-          setClienteInfo(null)
-          setMessages((prev) => [
-            ...prev,
-            { role: "assistant", content: "Dados do cliente removidos com sucesso.", id: uuidv4() },
-          ])
-          setIsThinking(false)
-          return
-        }
-        if (quickResponses[lowercaseMessage]) {
-          setTimeout(() => {
-            setMessages((prev) => [
-              ...prev,
-              { role: "assistant", content: quickResponses[lowercaseMessage], id: uuidv4() },
-            ])
-            setIsThinking(false)
-          }, 500)
-          return
-        }
-        if (
-          lowercaseMessage.includes("portfólio") ||
-          lowercaseMessage.includes("portfolio") ||
-          lowercaseMessage.includes("trabalhos") ||
-          lowercaseMessage.includes("projetos") ||
-          lowercaseMessage.includes("vídeos") ||
-          lowercaseMessage.includes("videos")
-        ) {
-          try {
-            const portfolioResponse = await fetch("/api/portfolio-response", {
-              headers: {
-                "Cache-Control": "no-cache, no-store, must-revalidate",
-                Pragma: "no-cache",
-                Expires: "0",
+              {
+                role: "assistant",
+                content: "O telefone informado parece inválido. Por favor, informe um telefone válido, como (11) 91234-5678:",
+                id: uuidv4(),
               },
-            })
-            if (portfolioResponse.ok) {
-              const data = await portfolioResponse.json()
-              if (data.success && data.response) {
-                setMessages((prev) => [
-                  ...prev,
-                  { role: "assistant", content: data.response, id: uuidv4(), cardType: "portfolio" },
-                ])
-                setIsThinking(false)
-                return
-              }
-            }
-            console.log("Falha ao buscar resposta de portfólio atualizada, usando fallback")
-            setTimeout(() => {
-              setMessages((prev) => [
-                ...prev,
-                { role: "assistant", content: quickResponses["portfolio"], id: uuidv4(), cardType: "portfolio" },
-              ])
-              setIsThinking(false)
-            }, 800)
-            return
-          } catch (error) {
-            console.error("Erro ao buscar resposta de portfólio:", error)
-            setTimeout(() => {
-              setMessages((prev) => [
-                ...prev,
-                { role: "assistant", content: quickResponses["portfolio"], id: uuidv4(), cardType: "portfolio" },
-              ])
-              setIsThinking(false)
-            }, 800)
-            return
+            ]);
+            setTimeout(scrollToBottom, 100);
+            return;
           }
-        }
-        if (
-          lowercaseMessage.includes("serviço") ||
-          lowercaseMessage.includes("servico") ||
-          lowercaseMessage.includes("oferecem") ||
-          lowercaseMessage.includes("fazem")
-        ) {
-          setTimeout(() => {
-            setMessages((prev) => [
-              ...prev,
-              { role: "assistant", content: quickResponses["serviços"], id: uuidv4(), cardType: "servicos" },
-            ])
-            setIsThinking(false)
-          }, 800)
-          return
-        }
-        if (
-          (lowercaseMessage.includes("videoaula") ||
-            lowercaseMessage.includes("video aula") ||
-            lowercaseMessage.includes("criar video") ||
-            lowercaseMessage.includes("fazer video") ||
-            lowercaseMessage.includes("produzir video") ||
-            lowercaseMessage.includes("produção de video")) &&
-          !coletandoDados &&
-          !clienteInfo
-        ) {
-          setTimeout(() => {
-            setMessages((prev) => [
-              ...prev,
-              { role: "assistant", content: "Ótimo! Para criarmos uma videoaula personalizada, precisamos de algumas informações suas. Vamos começar?", id: uuidv4() },
-            ])
-            setTimeout(() => { iniciarCadastroCliente() }, 1000)
-            setIsThinking(false)
-          }, 800)
-          return
-        }
-        if (
-          (lowercaseMessage.includes("videoaula") ||
-            lowercaseMessage.includes("video aula") ||
-            lowercaseMessage.includes("criar video")) &&
-          !coletandoDados &&
-          clienteInfo
-        ) {
-          setTimeout(() => {
-            setMessages((prev) => [
-              ...prev,
-              { role: "assistant", content: `Olá ${clienteInfo?.nome_completo}! Já temos seus dados salvos. Podemos continuar trabalhando na sua videoaula sobre "${clienteInfo?.tema_desejado}". Como posso ajudar hoje?`, id: uuidv4() },
-            ])
-            setIsThinking(false)
-          }, 800)
-          return
-        }
-        if (shouldUseAssistant(message)) {
-          console.log("Usando Assistant API para resposta complexa")
-          const assistantMessageId = uuidv4()
+          const telefoneFormatado = formatarTelefone(message);
+          novaInfo["telefone"] = telefoneFormatado;
           setMessages((prev) => [
             ...prev,
-            { role: "assistant", content: "Processando sua solicitação...", id: assistantMessageId },
-          ])
-
-          const controller = new AbortController()
-          const timeoutId = setTimeout(() => controller.abort(), 45000)
-
+            { role: "user", content: telefoneFormatado, id: uuidv4() },
+            {
+              role: "assistant",
+              content: "Perfeito! Obrigado pelos dados. Podemos seguir com a criação da videoaula agora 😊",
+              id: uuidv4(),
+            },
+          ]);
+          const novaInfoFinal = { ...novaInfo, [etapaCadastro]: telefoneFormatado };
+          localStorage.setItem("cacilda_cliente_info", JSON.stringify(novaInfoFinal));
+          const salvouComSucesso = await salvarClienteNoSupabase(novaInfoFinal);
+          if (salvouComSucesso) {
+            setMessages((prev) => [
+              ...prev,
+              {
+                role: "assistant",
+                content:
+                  "Seus dados foram salvos com sucesso! Nossa equipe entrará em contato em breve para discutir os detalhes da sua videoaula.",
+                id: uuidv4(),
+              },
+            ]);
+          }
+          setEtapaCadastro(null);
+          setColetandoDados(false);
+          setClienteInfo(novaInfoFinal);
+          setTimeout(scrollToBottom, 100);
+          return;
+        }
+        return;
+      }
+    }
+    
+    // Fluxo normal (não cadastro)
+    const newUserMessage = { role: "user", content: message, id: uuidv4() };
+    setMessages((prev) => [...prev, newUserMessage]);
+    setError(null);
+    setIsThinking(true);
+    const lowercaseMessage = message.toLowerCase().trim();
+    
+    // Comandos especiais
+    if (lowercaseMessage.startsWith("/uploadcacilda")) {
+      setShowUploadForm(true);
+      setVideoToEdit(null);
+      setMessages((prev) => [
+        ...prev,
+        { role: "assistant", content: "Formulário de upload de vídeo aberto.", id: uuidv4() },
+      ]);
+      setIsThinking(false);
+      return;
+    }
+    if (lowercaseMessage.startsWith("/deletecacilda")) {
+      setShowDeleteVideoForm(true);
+      setMessages((prev) => [
+        ...prev,
+        { role: "assistant", content: "Gerenciador de vídeos aberto.", id: uuidv4() },
+      ]);
+      setIsThinking(false);
+      return;
+    }
+    if (lowercaseMessage.startsWith("/promptcacilda")) {
+      setShowPromptForm(true);
+      setMessages((prev) => [
+        ...prev,
+        { role: "assistant", content: "Formulário para adicionar à base de conhecimento aberto.", id: uuidv4() },
+      ]);
+      setIsThinking(false);
+      return;
+    }
+    if (lowercaseMessage.startsWith("/limparcliente")) {
+      localStorage.removeItem("cacilda_cliente_info");
+      setClienteInfo(null);
+      setMessages((prev) => [
+        ...prev,
+        { role: "assistant", content: "Dados do cliente removidos com sucesso.", id: uuidv4() },
+      ]);
+      setIsThinking(false);
+      return;
+    }
+    if (quickResponses[lowercaseMessage]) {
+      setTimeout(() => {
+        setMessages((prev) => [
+          ...prev,
+          { role: "assistant", content: quickResponses[lowercaseMessage], id: uuidv4() },
+        ]);
+        setIsThinking(false);
+      }, 500);
+      return;
+    }
+    if (
+      lowercaseMessage.includes("portfólio") ||
+      lowercaseMessage.includes("portfolio") ||
+      lowercaseMessage.includes("trabalhos") ||
+      lowercaseMessage.includes("projetos") ||
+      lowercaseMessage.includes("vídeos") ||
+      lowercaseMessage.includes("videos")
+    ) {
+      try {
+        const portfolioResponse = await fetch("/api/portfolio-response", {
+          headers: {
+            "Cache-Control": "no-cache, no-store, must-revalidate",
+            Pragma: "no-cache",
+            Expires: "0",
+          },
+        });
+        if (portfolioResponse.ok) {
+          const data = await portfolioResponse.json();
+          if (data.success && data.response) {
+            setMessages((prev) => [
+              ...prev,
+              { role: "assistant", content: data.response, id: uuidv4(), cardType: "portfolio" },
+            ]);
+            setIsThinking(false);
+            return;
+          }
+        }
+        console.log("Falha ao buscar resposta de portfólio atualizada, usando fallback");
+        setTimeout(() => {
+          setMessages((prev) => [
+            ...prev,
+            { role: "assistant", content: quickResponses["portfolio"], id: uuidv4(), cardType: "portfolio" },
+          ]);
+          setIsThinking(false);
+        }, 800);
+        return;
+      } catch (error) {
+        console.error("Erro ao buscar resposta de portfólio:", error);
+        setTimeout(() => {
+          setMessages((prev) => [
+            ...prev,
+            { role: "assistant", content: quickResponses["portfolio"], id: uuidv4(), cardType: "portfolio" },
+          ]);
+          setIsThinking(false);
+        }, 800);
+        return;
+      }
+    }
+    if (
+      lowercaseMessage.includes("serviço") ||
+      lowercaseMessage.includes("servico") ||
+      lowercaseMessage.includes("oferecem") ||
+      lowercaseMessage.includes("fazem")
+    ) {
+      setTimeout(() => {
+        setMessages((prev) => [
+          ...prev,
+          { role: "assistant", content: quickResponses["serviços"], id: uuidv4(), cardType: "servicos" },
+        ]);
+        setIsThinking(false);
+      }, 800);
+      return;
+    }
+    if (
+      (lowercaseMessage.includes("videoaula") ||
+        lowercaseMessage.includes("video aula") ||
+        lowercaseMessage.includes("criar video") ||
+        lowercaseMessage.includes("fazer video") ||
+        lowercaseMessage.includes("produzir video") ||
+        lowercaseMessage.includes("produção de video")) &&
+      !coletandoDados &&
+      !clienteInfo
+    ) {
+      setTimeout(() => {
+        setMessages((prev) => [
+          ...prev,
+          { role: "assistant", content: "Ótimo! Para criarmos uma videoaula personalizada, precisamos de algumas informações suas. Vamos começar?", id: uuidv4() },
+        ]);
+        setTimeout(() => { iniciarCadastroCliente(); }, 1000);
+        setIsThinking(false);
+      }, 800);
+      return;
+    }
+    if (
+      (lowercaseMessage.includes("videoaula") ||
+        lowercaseMessage.includes("video aula") ||
+        lowercaseMessage.includes("criar video")) &&
+      !coletandoDados &&
+      clienteInfo
+    ) {
+      setTimeout(() => {
+        setMessages((prev) => [
+          ...prev,
+          {
+            role: "assistant",
+            content: `Olá ${clienteInfo?.nome_completo}! Já temos seus dados salvos. Podemos continuar trabalhando na sua videoaula sobre "${clienteInfo?.tema_desejado}". Como posso ajudar hoje?`,
+            id: uuidv4(),
+          },
+        ]);
+        setIsThinking(false);
+      }, 800);
+      return;
+    }
+    
+    // Agora, se deve usar a Assistant API ou não
+    if (shouldUseAssistant(message)) {
+      console.log("Usando Assistant API para resposta complexa");
+      const assistantMessageId = uuidv4();
+      setMessages((prev) => [
+        ...prev,
+        { role: "assistant", content: "Processando sua solicitação...", id: assistantMessageId },
+      ]);
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 45000);
+    
+      try {
+        const response = await fetch("/api/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            messages: [...messages, { role: "user", content: message, id: uuidv4() }],
+            timestamp: Date.now(),
+          }),
+          signal: controller.signal,
+        });
+        clearTimeout(timeoutId);
+    
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          if (errorData && errorData.fallbackResponse) {
+            setMessages((prev) => {
+              const index = prev.findIndex((m) => m.id === assistantMessageId);
+              if (index === -1) return prev;
+              const newMessages = [...prev];
+              newMessages[index] = { role: "assistant", content: errorData.fallbackResponse, id: assistantMessageId };
+              return newMessages;
+            });
+            setIsThinking(false);
+            return;
+          }
+          throw new Error(`Server error: ${response.status} ${response.statusText}`);
+        }
+    
+        // Tentar extrair dados extras sem consumir o body
+        const responseClone = response.clone();
+        const contentType = response.headers.get("content-type");
+        if (contentType && contentType.includes("application/json")) {
           try {
-            const response = await fetch("/api/chat", {
+            const data = await responseClone.json();
+            if (data.threadId) {
+              localStorage.setItem("threadId", data.threadId);
+              console.log("Thread ID salvo:", data.threadId);
+            }
+          } catch (err) {
+            console.error("Erro ao parsear JSON do clone:", err);
+          }
+        } else {
+          try {
+            const text = await responseClone.text();
+            console.log("Resposta (texto):", text);
+          } catch (err) {
+            console.error("Erro ao ler resposta como texto:", err);
+          }
+        }
+    
+        const reader = response.body?.getReader();
+        if (!reader) throw new Error("Não foi possível ler a resposta");
+        const decoder = new TextDecoder();
+        let assistantMessage = "";
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) break;
+          const chunk = decoder.decode(value, { stream: true });
+          const cleanedChunk = chunk
+            .replace(/Gerando resposta\.\.\./g, "")
+            .replace(/Aguardando na fila\.\.\./g, "")
+            .replace(/Processando sua solicitação\.\.\./g, "");
+          if (cleanedChunk.trim()) assistantMessage += cleanedChunk;
+          setMessages((prev) => {
+            const index = prev.findIndex((m) => m.id === assistantMessageId);
+            if (index === -1) return prev;
+            const newMessages = [...prev];
+            newMessages[index] = { role: "assistant", content: assistantMessage, id: assistantMessageId };
+            return newMessages;
+          });
+          scrollToBottom();
+        }
+      } catch (error: any) {
+        console.error("Error:", error);
+        if (error.name === "AbortError") {
+          setMessages((prev) => {
+            const index = prev.findIndex((m) => m.id === assistantMessageId);
+            if (index === -1) return prev;
+            const newMessages = [...prev];
+            newMessages[index] = {
+              role: "assistant",
+              content: "Desculpe, a resposta está demorando mais do que o esperado. Por favor, tente uma pergunta mais simples ou entre em contato pelo email atendimento@cacildafilmes.com.",
+              id: assistantMessageId,
+            };
+            return newMessages;
+          });
+        } else {
+          try {
+            setMessages((prev) => {
+              const index = prev.findIndex((m) => m.id === assistantMessageId);
+              if (index === -1) return prev;
+              const newMessages = [...prev];
+              newMessages[index] = { role: "assistant", content: "Processando com método alternativo...", id: assistantMessageId };
+              return newMessages;
+            });
+            const fallbackResponse = await fetch("/api/chat", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
-                messages: [...messages, { role: "user", content: message, id: uuidv4() }],
+                messages: [{ role: "user", content: message, id: uuidv4() }],
+                useSimpleModel: true,
                 timestamp: Date.now(),
               }),
-              signal: controller.signal,
-            })
-            clearTimeout(timeoutId)
-            if (!response.ok) {
-              const errorData = await response.json().catch(() => ({}))
-              if (errorData && errorData.fallbackResponse) {
-                setMessages((prev) => {
-                  const index = prev.findIndex((m) => m.id === assistantMessageId)
-                  if (index === -1) return prev
-                  const newMessages = [...prev]
-                  newMessages[index] = { role: "assistant", content: errorData.fallbackResponse, id: assistantMessageId }
-                  return newMessages
-                })
-                setIsThinking(false)
-                return
-              }
-              throw new Error(`Server error: ${response.status} ${response.statusText}`)
-            }
-
-            // Extrair dados extras sem consumir o body
-            const responseClone = response.clone()
-            const contentType = response.headers.get("content-type")
-            if (contentType && contentType.includes("application/json")) {
-              try {
-                const data = await responseClone.json()
-                if (data.threadId) {
-                  localStorage.setItem("threadId", data.threadId)
-                  console.log("Thread ID salvo:", data.threadId)
-                }
-              } catch (err) {
-                console.error("Erro ao parsear JSON do clone:", err)
-              }
-            } else {
-              try {
-                const text = await responseClone.text()
-                console.log("Resposta (texto):", text)
-              } catch (err) {
-                console.error("Erro ao ler resposta como texto:", err)
-              }
-            }
-
-            // Streaming da resposta original
-            const reader = response.body?.getReader()
-            if (!reader) throw new Error("Não foi possível ler a resposta")
-            const decoder = new TextDecoder()
-            let assistantMessage = ""
+            });
+            if (!fallbackResponse.ok) throw new Error("Falha no método alternativo");
+            const fallbackReader = fallbackResponse.body?.getReader();
+            if (!fallbackReader) throw new Error("Não foi possível ler a resposta alternativa");
+            const fallbackDecoder = new TextDecoder();
+            let fallbackContent = "";
             while (true) {
-              const { value, done } = await reader.read()
-              if (done) break
-              const chunk = decoder.decode(value, { stream: true })
-              const cleanedChunk = chunk
-                .replace(/Gerando resposta\.\.\./g, "")
-                .replace(/Aguardando na fila\.\.\./g, "")
-                .replace(/Processando sua solicitação\.\.\./g, "")
-              if (cleanedChunk.trim()) assistantMessage += cleanedChunk
+              const { value, done } = await fallbackReader.read();
+              if (done) break;
+              const chunk = fallbackDecoder.decode(value, { stream: true });
+              fallbackContent += chunk;
               setMessages((prev) => {
-                const index = prev.findIndex((m) => m.id === assistantMessageId)
-                if (index === -1) return prev
-                const newMessages = [...prev]
-                newMessages[index] = { role: "assistant", content: assistantMessage, id: assistantMessageId }
-                return newMessages
-              })
-              scrollToBottom()
+                const index = prev.findIndex((m) => m.id === assistantMessageId);
+                if (index === -1) return prev;
+                const newMessages = [...prev];
+                newMessages[index] = { role: "assistant", content: fallbackContent, id: assistantMessageId };
+                return newMessages;
+              });
+              scrollToBottom();
             }
-          } catch (error: any) {
-            console.error("Error:", error)
-            if (error.name === "AbortError") {
-              setMessages((prev) => {
-                const index = prev.findIndex((m) => m.id === assistantMessageId)
-                if (index === -1) return prev
-                const newMessages = [...prev]
-                newMessages[index] = { role: "assistant", content: "Desculpe, a resposta está demorando mais do que o esperado. Por favor, tente uma pergunta mais simples ou entre em contato pelo email atendimento@cacildafilmes.com.", id: assistantMessageId }
-                return newMessages
-              })
-            } else {
-              try {
-                setMessages((prev) => {
-                  const index = prev.findIndex((m) => m.id === assistantMessageId)
-                  if (index === -1) return prev
-                  const newMessages = [...prev]
-                  newMessages[index] = { role: "assistant", content: "Processando com método alternativo...", id: assistantMessageId }
-                  return newMessages
-                })
-                const fallbackResponse = await fetch("/api/chat", {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({
-                    messages: [{ role: "user", content: message, id: uuidv4() }],
-                    useSimpleModel: true,
-                    timestamp: Date.now(),
-                  }),
-                })
-                if (!fallbackResponse.ok) {
-                  throw new Error("Falha no método alternativo")
-                }
-                const reader = fallbackResponse.body?.getReader()
-                if (!reader) throw new Error("Não foi possível ler a resposta alternativa")
-                const decoder = new TextDecoder()
-                let fallbackContent = ""
-                while (true) {
-                  const { value, done } = await reader.read()
-                  if (done) break
-                  const chunk = decoder.decode(value, { stream: true })
-                  fallbackContent += chunk
-                  setMessages((prev) => {
-                    const index = prev.findIndex((m) => m.id === assistantMessageId)
-                    if (index === -1) return prev
-                    const newMessages = [...prev]
-                    newMessages[index] = { role: "assistant", content: fallbackContent, id: assistantMessageId }
-                    return newMessages
-                  })
-                  scrollToBottom()
-                }
-              } catch (fallbackError) {
-                console.error("Fallback error:", fallbackError)
-                setMessages((prev) => {
-                  const index = prev.findIndex((m) => m.id === assistantMessageId)
-                  if (index === -1) return prev
-                  const newMessages = [...prev]
-                  newMessages[index] = { role: "assistant", content: "Desculpe, estou enfrentando dificuldades técnicas no momento. Por favor, tente novamente mais tarde ou entre em contato pelo email atendimento@cacildafilmes.com.", id: assistantMessageId }
-                  return newMessages
-                })
-              }
-            } finally {
-              clearTimeout(timeoutId)
-            }
-          } else {
-            console.log("Usando resposta local para pergunta simples")
-            let bestMatch = null
-            let bestMatchScore = 0
-            for (const [key, response] of Object.entries(quickResponses)) {
-              if (key.length < 4) continue
-              const keyWords = key.split(" ")
-              let matchScore = 0
-              for (const word of keyWords) {
-                if (word.length > 3 && lowercaseMessage.includes(word)) {
-                  matchScore += 1
-                }
-              }
-              if (matchScore > bestMatchScore) {
-                bestMatch = response
-                bestMatchScore = matchScore
-              }
-            }
-            if (bestMatch && bestMatchScore > 0) {
-              setTimeout(() => {
-                setMessages((prev) => [
-                  ...prev,
-                  { role: "assistant", content: bestMatch as string, id: uuidv4() },
-                ])
-                setIsThinking(false)
-                scrollToBottom()
-              }, 800)
-            } else {
-              console.log("Nenhuma correspondência local encontrada, usando Assistant API")
-              const response = await fetch("/api/chat", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                  messages: [...messages, { role: "user", content: message, id: uuidv4() }],
-                  timestamp: Date.now(),
-                }),
-              })
-              if (!response.ok) {
-                throw new Error(`Server error: ${response.status} ${response.statusText}`)
-              }
-              const responseClone = response.clone()
-              const contentType = response.headers.get("content-type")
-              if (contentType && contentType.includes("application/json")) {
-                try {
-                  const data = await responseClone.json()
-                  if (data.threadId) {
-                    localStorage.setItem("threadId", data.threadId)
-                    console.log("Thread ID salvo:", data.threadId)
-                  }
-                } catch (err) {
-                  console.error("Erro ao parsear JSON do clone:", err)
-                }
-              } else {
-                try {
-                  const text = await responseClone.text()
-                  console.log("Resposta (texto):", text)
-                } catch (err) {
-                  console.error("Erro ao ler resposta como texto:", err)
-                }
-              }
-              const reader = response.body?.getReader()
-              if (!reader) throw new Error("Não foi possível ler a resposta")
-              const assistantMessageId = uuidv4()
-              setMessages((prev) => [
-                ...prev,
-                { role: "assistant", content: "", id: assistantMessageId },
-              ])
-              const decoder = new TextDecoder()
-              let assistantMessage = ""
-              while (true) {
-                const { value, done } = await reader.read()
-                if (done) break
-                const chunk = decoder.decode(value, { stream: true })
-                const cleanedChunk = chunk
-                  .replace(/Gerando resposta\.\.\./g, "")
-                  .replace(/Aguardando na fila\.\.\./g, "")
-                  .replace(/Processando sua solicitação\.\.\./g, "")
-                if (cleanedChunk.trim()) {
-                  assistantMessage += cleanedChunk
-                }
-                setMessages((prev) => {
-                  const index = prev.findIndex((m) => m.id === assistantMessageId)
-                  if (index === -1) return prev
-                  const newMessages = [...prev]
-                  newMessages[index] = { role: "assistant", content: assistantMessage, id: assistantMessageId }
-                  return newMessages
-                })
-                scrollToBottom()
-              }
+          } catch (fallbackError) {
+            console.error("Fallback error:", fallbackError);
+            setMessages((prev) => {
+              const index = prev.findIndex((m) => m.id === assistantMessageId);
+              if (index === -1) return prev;
+              const newMessages = [...prev];
+              newMessages[index] = {
+                role: "assistant",
+                content:
+                  "Desculpe, estou enfrentando dificuldades técnicas no momento. Por favor, tente novamente mais tarde ou entre em contato pelo email atendimento@cacildafilmes.com.",
+                id: assistantMessageId,
+              };
+              return newMessages;
+            });
+          }
+        }
+      } else {
+        // Caso não deva usar a API Assistant: fallback local
+        console.log("Usando resposta local para pergunta simples");
+        let bestMatch: string | null = null;
+        let bestMatchScore = 0;
+        for (const [key, response] of Object.entries(quickResponses)) {
+          if (key.length < 4) continue;
+          const keyWords = key.split(" ");
+          let matchScore = 0;
+          for (const word of keyWords) {
+            if (word.length > 3 && lowercaseMessage.includes(word)) {
+              matchScore += 1;
             }
           }
-        } catch (error) {
-          console.error("Error:", error)
+          if (matchScore > bestMatchScore) {
+            bestMatch = response;
+            bestMatchScore = matchScore;
+          }
+        }
+        if (bestMatch && bestMatchScore > 0) {
+          setTimeout(() => {
+            setMessages((prev) => [
+              ...prev,
+              { role: "assistant", content: bestMatch as string, id: uuidv4() },
+            ]);
+            setIsThinking(false);
+            scrollToBottom();
+          }, 800);
+        } else {
+          console.log("Nenhuma correspondência local encontrada, usando Assistant API");
+          const response = await fetch("/api/chat", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              messages: [...messages, { role: "user", content: message, id: uuidv4() }],
+              timestamp: Date.now(),
+            }),
+          });
+          if (!response.ok) {
+            throw new Error(`Server error: ${response.status} ${response.statusText}`);
+          }
+          const responseClone = response.clone();
+          const contentType = response.headers.get("content-type");
+          if (contentType && contentType.includes("application/json")) {
+            try {
+              const data = await responseClone.json();
+              if (data.threadId) {
+                localStorage.setItem("threadId", data.threadId);
+                console.log("Thread ID salvo:", data.threadId);
+              }
+            } catch (err) {
+              console.error("Erro ao parsear JSON do clone:", err);
+            }
+          } else {
+            try {
+              const text = await responseClone.text();
+              console.log("Resposta (texto):", text);
+            } catch (err) {
+              console.error("Erro ao ler resposta como texto:", err);
+            }
+          }
+          const reader = response.body?.getReader();
+          if (!reader) throw new Error("Não foi possível ler a resposta");
+          const assistantMessageId = uuidv4();
           setMessages((prev) => [
             ...prev,
-            { role: "assistant", content: "Desculpe, ocorreu um erro ao processar sua mensagem. Por favor, tente novamente mais tarde.", id: uuidv4() },
-          ])
-        } finally {
-          setIsThinking(false)
-          setTimeout(scrollToBottom, 100)
+            { role: "assistant", content: "", id: assistantMessageId },
+          ]);
+          const decoder = new TextDecoder();
+          let assistantMessage = "";
+          while (true) {
+            const { value, done } = await reader.read();
+            if (done) break;
+            const chunk = decoder.decode(value, { stream: true });
+            const cleanedChunk = chunk
+              .replace(/Gerando resposta\.\.\./g, "")
+              .replace(/Aguardando na fila\.\.\./g, "")
+              .replace(/Processando sua solicitação\.\.\./g, "");
+            if (cleanedChunk.trim()) {
+              assistantMessage += cleanedChunk;
+            }
+            setMessages((prev) => {
+              const index = prev.findIndex((m) => m.id === assistantMessageId);
+              if (index === -1) return prev;
+              const newMessages = [...prev];
+              newMessages[index] = { role: "assistant", content: assistantMessage, id: assistantMessageId };
+              return newMessages;
+            });
+            scrollToBottom();
+          }
         }
       }
+      setIsThinking(false);
+      setTimeout(scrollToBottom, 100);
     },
     [messages, quickResponses, shouldUseAssistant, scrollToBottom, clienteInfo, coletandoDados, etapaCadastro, camposCadastro]
-  )
-
+  );
+    
   const handleQuickAccessClick = useCallback(
     (topic: string) => {
-      const event = new Event("chatInteraction")
-      window.dispatchEvent(event)
-      setIsInitialPositionn(false)
-      const newUserMessage = { role: "user", content: topic, id: uuidv4() }
-      setMessages((prev) => [...prev, newUserMessage])
+      const event = new Event("chatInteraction");
+      window.dispatchEvent(event);
+      setIsInitialPositionn(false);
+      const newUserMessage = { role: "user", content: topic, id: uuidv4() };
+      setMessages((prev) => [...prev, newUserMessage]);
       const topicMap: Record<string, string> = {
         portfolio: "portfolio",
         servicos: "serviços",
         sobre: "sobre",
         contato: "contato",
-      }
-      const mappedTopic = topicMap[topic] || topic
-      let cardType: CardType | undefined
-      let content = ""
+      };
+      const mappedTopic = topicMap[topic] || topic;
+      let cardType: CardType | undefined;
+      let content = "";
       switch (mappedTopic) {
         case "portfolio":
-          cardType = "portfolio"
-          content = ""
-          break
+          cardType = "portfolio";
+          content = "";
+          break;
         case "servicos":
-          cardType = "servicos"
-          content = quickResponses["serviços"]
-          break
+          cardType = "servicos";
+          content = quickResponses["serviços"];
+          break;
         case "sobre":
-          cardType = "sobre"
-          content = quickResponses["sobre"]
-          break
+          cardType = "sobre";
+          content = quickResponses["sobre"];
+          break;
         case "contato":
-          cardType = "contato"
-          content = quickResponses["contato"]
-          break
+          cardType = "contato";
+          content = quickResponses["contato"];
+          break;
         default:
-          handleMessageSent(topic)
-          return
+          handleMessageSent(topic);
+          return;
       }
       setTimeout(() => {
         setMessages((prev) => [
           ...prev,
           { role: "assistant", content: content, id: uuidv4(), cardType: cardType },
-        ])
-        setTimeout(scrollToBottom, 100)
-      }, 500)
+        ]);
+        setTimeout(scrollToBottom, 100);
+      }, 500);
     },
-    [handleMessageSent, quickResponses, scrollToBottom],
-  )
-
+    [handleMessageSent, quickResponses, scrollToBottom]
+  );
+    
   const handleError = useCallback((error: string) => {
-    console.error("Error:", error)
+    console.error("Error:", error);
     const userFriendlyMessage =
       error.includes("URL") || error.includes("API")
         ? "O serviço está temporariamente indisponível. Por favor, tente novamente mais tarde."
-        : error
-    setError(userFriendlyMessage)
+        : error;
+    setError(userFriendlyMessage);
     toast.error("Ocorreu um erro. Por favor, tente novamente mais tarde.", {
       position: "top-right",
       autoClose: 5000,
-    })
-  }, [])
-
+    });
+  }, []);
+    
   const handleFirstInteraction = useCallback(() => {
-    const event = new Event("chatInteraction")
-    window.dispatchEvent(event)
-    setIsChatCentered(false)
-    setIsInitialPosition(false)
-  }, [])
-
+    const event = new Event("chatInteraction");
+    window.dispatchEvent(event);
+    setIsChatCentered(false);
+    setIsInitialPosition(false);
+  }, []);
+    
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const value = e.target.value
-    setInput(value)
+    const value = e.target.value;
+    setInput(value);
     if (value.length === 1) {
-      const event = new Event("chatInteraction")
-      window.dispatchEvent(event)
-      handleFirstInteraction()
+      const event = new Event("chatInteraction");
+      window.dispatchEvent(event);
+      handleFirstInteraction();
     }
     if (value.endsWith("#")) {
-      setHashtagSuggestions(["#videoaulas", "#institucional", "#varejo", "#motion", "#makingof"])
+      setHashtagSuggestions(["#videoaulas", "#institucional", "#varejo", "#motion", "#makingof"]);
     } else if (!value.includes("#")) {
-      setHashtagSuggestions([])
+      setHashtagSuggestions([]);
     }
-  }
-
+  };
+    
   const handleSendMessage = useCallback(
     async (e?: React.FormEvent) => {
-      if (e) e.preventDefault()
-      if (!input.trim() || isThinking) return
-      setIsInitialPosition(false)
-      const message = input.trim()
-      setInput("")
-      await handleMessageSent(message)
+      if (e) e.preventDefault();
+      if (!input.trim() || isThinking) return;
+      setIsInitialPosition(false);
+      const message = input.trim();
+      setInput("");
+      await handleMessageSent(message);
     },
-    [input, isThinking, handleMessageSent],
-  )
-
+    [input, isThinking, handleMessageSent]
+  );
+    
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
       if (e.key === "Enter" && !e.shiftKey) {
-        e.preventDefault()
-        handleSendMessage()
+        e.preventDefault();
+        handleSendMessage();
       }
     },
-    [handleSendMessage],
-  )
-
+    [handleSendMessage]
+  );
+    
   useEffect(() => {
     if (isClient) {
       try {
-        const hasVisitedBefore = localStorage.getItem("hasVisitedBefore")
+        const hasVisitedBefore = localStorage.getItem("hasVisitedBefore");
         if (!hasVisitedBefore && !tutorialCompleted) {
-          const timer = setTimeout(() => setShowTutorial(true), 1500)
-          return () => clearTimeout(timer)
+          const timer = setTimeout(() => setShowTutorial(true), 1500);
+          return () => clearTimeout(timer);
         }
       } catch (error) {
-        console.error("Erro ao acessar localStorage:", error)
+        console.error("Erro ao acessar localStorage:", error);
       }
     }
-  }, [tutorialCompleted, isClient])
-
+  }, [tutorialCompleted, isClient]);
+    
   const handleTutorialComplete = () => {
-    setTutorialCompleted(true)
-    setShowTutorial(false)
+    setTutorialCompleted(true);
+    setShowTutorial(false);
     if (isClient) {
       try {
-        localStorage.setItem("hasVisitedBefore", "true")
+        localStorage.setItem("hasVisitedBefore", "true");
       } catch (error) {
-        console.error("Erro ao salvar no localStorage:", error)
+        console.error("Erro ao salvar no localStorage:", error);
       }
     }
-  }
-
+  };
+    
   const handleUploadFormSubmit = async (data: any) => {
     try {
       if (data.id) {
@@ -857,9 +885,9 @@ export default function Home() {
             creation: data.creation,
             thumbnailUrl: data.thumbnailUrl,
           }),
-        })
-        if (!response.ok) throw new Error("Falha ao atualizar o vídeo")
-        toast.success("Vídeo atualizado com sucesso!")
+        });
+        if (!response.ok) throw new Error("Falha ao atualizar o vídeo");
+        toast.success("Vídeo atualizado com sucesso!");
       } else {
         const response = await fetch("/api/upload-video", {
           method: "POST",
@@ -874,81 +902,82 @@ export default function Home() {
             creation: data.creation,
             thumbnailUrl: data.thumbnailUrl,
           }),
-        })
-        if (!response.ok) throw new Error("Falha ao fazer upload do vídeo")
-        toast.success("Vídeo enviado com sucesso!")
+        });
+        if (!response.ok) throw new Error("Falha ao fazer upload do vídeo");
+        toast.success("Vídeo enviado com sucesso!");
       }
-      setShowUploadForm(false)
+      setShowUploadForm(false);
     } catch (error) {
-      console.error("Erro ao enviar o vídeo:", error)
-      toast.error("Erro ao enviar o vídeo. Por favor, tente novamente.")
+      console.error("Erro ao enviar o vídeo:", error);
+      toast.error("Erro ao enviar o vídeo. Por favor, tente novamente.");
     }
-  }
-
+  };
+    
   const handleDeleteVideo = async (id: number) => {
     try {
       const response = await fetch("/api/delete-video", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id }),
-      })
-      if (!response.ok) throw new Error("Falha ao deletar o vídeo")
-      toast.success("Vídeo deletado com sucesso!")
+      });
+      if (!response.ok) throw new Error("Falha ao deletar o vídeo");
+      toast.success("Vídeo deletado com sucesso!");
     } catch (error) {
-      console.error("Erro ao deletar o vídeo:", error)
-      toast.error("Erro ao deletar o vídeo. Por favor, tente novamente.")
+      console.error("Erro ao deletar o vídeo:", error);
+      toast.error("Erro ao deletar o vídeo. Por favor, tente novamente.");
     }
-  }
-
+  };
+    
   const handleEditVideo = (video: any) => {
-    setVideoToEdit(video)
-    setShowUploadForm(true)
-    setShowDeleteVideoForm(false)
-  }
-
+    setVideoToEdit(video);
+    setShowUploadForm(true);
+    setShowDeleteVideoForm(false);
+  };
+    
   const handlePromptSubmit = async (type: string, content: string) => {
     try {
       const response = await fetch("/api/add-knowledge", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ type, content }),
-      })
-      if (!response.ok) throw new Error("Falha ao adicionar à base de conhecimento")
-      toast.success("Informação adicionada à base de conhecimento com sucesso!")
-      setShowPromptForm(false)
+      });
+      if (!response.ok) throw new Error("Falha ao adicionar à base de conhecimento");
+      toast.success("Informação adicionada à base de conhecimento com sucesso!");
+      setShowPromptForm(false);
     } catch (error) {
-      console.error("Erro ao adicionar à base de conhecimento:", error)
-      toast.error("Erro ao adicionar à base de conhecimento. Por favor, tente novamente.")
-      throw error
+      console.error("Erro ao adicionar à base de conhecimento:", error);
+      toast.error("Erro ao adicionar à base de conhecimento. Por favor, tente novamente.");
+      throw error;
     }
-  }
-
+  };
+    
   const getVimeoId = (vimeoLink: string): string => {
-    const parts = vimeoLink.split("/")
-    return parts[parts.length - 1].split("?")[0]
-  }
-
+    const parts = vimeoLink.split("/");
+    return parts[parts.length - 1].split("?")[0];
+  };
+    
   const handleNewMessage = useCallback(
     (message: Message) => {
-      setMessages((prev) => [...prev, message])
-      if (!isAtBottom && message.role === "assistant") setUnreadCount((prev) => prev + 1)
-      if (message.role === "assistant") setIsThinking(false)
+      setMessages((prev) => [...prev, message]);
+      if (!isAtBottom && message.role === "assistant")
+        setUnreadCount((prev) => prev + 1);
+      if (message.role === "assistant") setIsThinking(false);
     },
-    [isAtBottom],
-  )
-
+    [isAtBottom]
+  );
+    
   useEffect(() => {
-    const container = chatContainerRef.current
+    const container = chatContainerRef.current;
     if (container) {
-      container.addEventListener("scroll", checkIfAtBottom)
-      return () => container.removeEventListener("scroll", checkIfAtBottom)
+      container.addEventListener("scroll", checkIfAtBottom);
+      return () => container.removeEventListener("scroll", checkIfAtBottom);
     }
-  }, [checkIfAtBottom])
-
+  }, [checkIfAtBottom]);
+    
   useEffect(() => {
-    iniciarCadastroCliente()
-  }, [])
-
+    iniciarCadastroCliente();
+  }, []);
+    
   return (
     <div className="min-h-screen bg-black text-white relative overflow-hidden">
       <Header chatInteracted={chatInteracted} />
@@ -1028,10 +1057,7 @@ export default function Home() {
           )}
           {!isAtBottom && (
             <ScrollToBottomButton
-              onClick={() => {
-                scrollToBottom()
-                setUnreadCount(0)
-              }}
+              onClick={() => { scrollToBottom(); setUnreadCount(0); }}
               unreadCount={unreadCount}
             />
           )}
@@ -1060,10 +1086,7 @@ export default function Home() {
                         <button
                           key={tag}
                           type="button"
-                          onClick={() => {
-                            setInput((prev) => prev.replace(/#$/, tag + " "))
-                            if (textareaRef.current) textareaRef.current.focus()
-                          }}
+                          onClick={() => { setInput((prev) => prev.replace(/#$/, tag + " ")); if (textareaRef.current) textareaRef.current.focus(); }}
                           className="px-2 py-1 bg-gray-700 hover:bg-gray-600 rounded-md text-xs sm:text-sm text-white"
                         >
                           {tag}
@@ -1109,5 +1132,5 @@ export default function Home() {
       {showPromptForm && <PromptPopup onClose={() => setShowPromptForm(false)} onSubmit={handlePromptSubmit} />}
       <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} closeOnClick pauseOnHover />
     </div>
-  )
+  );
 }
