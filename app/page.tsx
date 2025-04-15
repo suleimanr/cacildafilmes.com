@@ -863,23 +863,25 @@ export default function Home() {
                 }),
               })
 
-              if (response.ok) {
-                let data = {}
-                try {
-                  data = await response.json()
-                } catch (err) {
-                  const text = await response.text()
-                  console.error("Erro ao parsear JSON:", text)
-                  data = { error: text }
-                }
+              // Verifica se a resposta está ok
+              if (!response.ok) {
+                throw new Error(`Server error: ${response.status} ${response.statusText}`)
+              }
+
+              // Clona a resposta para extrair threadId sem consumir o body do response original
+              const responseClone = response.clone()
+              try {
+                const data = await responseClone.json()
                 if (data.threadId) {
                   localStorage.setItem("threadId", data.threadId)
                   console.log("Thread ID salvo:", data.threadId)
                 }
-              } else {
-                throw new Error(`Server error: ${response.status} ${response.statusText}`)
+              } catch (err) {
+                // Se houver erro no parse (por exemplo, se não for JSON válido) apenas loga o erro
+                console.error("Erro ao parsear JSON do clone:", err)
               }
 
+              // Agora usa o body original para streaming
               const reader = response.body?.getReader()
               if (!reader) {
                 throw new Error("Não foi possível ler a resposta")
@@ -909,7 +911,7 @@ export default function Home() {
                   .replace(/Processando sua solicitação\.\.\./g, "")
 
                 if (cleanedChunk.trim()) {
-                  assistantMessage += chunk
+                  assistantMessage += cleanedChunk
                 }
 
                 setMessages((prev) => {
