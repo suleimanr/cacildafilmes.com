@@ -15,10 +15,8 @@ const nextConfig = {
     return config
   },
   compress: false,
-  // Movido para fora do objeto experimental
-  serverExternalPackages: ['sharp'],
   experimental: {
-    memoryBasedWorkersCount: true,
+    serverExternalPackages: ['sharp'],
   },
   swcMinify: false,
 }
