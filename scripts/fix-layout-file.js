@@ -26,15 +26,15 @@ if (fs.existsSync(layoutFile)) {
       content = `import type React from "react"
 
 export default function RootLayout({
-  children,
+ children,
 }: {
-  children: React.ReactNode
+ children: React.ReactNode
 }) {
-  return (
-    <html lang="en">
-      <body>{children}</body>
-    </html>
-  )
+ return (
+   <html lang="en">
+     <body>{children}</body>
+   </html>
+ )
 }
 `
     }

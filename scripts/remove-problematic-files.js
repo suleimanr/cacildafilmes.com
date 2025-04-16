@@ -2,6 +2,9 @@
 const fs = require("fs")
 const path = require("path")
 
+console.log("REMOVENDO ARQUIVOS E DIRETÓRIOS PROBLEMÁTICOS")
+console.log("==========================================================")
+
 // Lista de arquivos e diretórios problemáticos
 const problematicPaths = [
   "app/@11labs",

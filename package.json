@@ -75,9 +75,13 @@
     "path": "latest",
     "react-toastify": "latest",
     "dotenv": "latest",
-    "react-markdown": "latest",
     "child_process": "latest",
-    "uuid": "latest"
+    "react-dropzone": "latest",
+    "react-markdown": "latest",
+    "uuid": "latest",
+    "formidable": "latest",
+    "util": "latest",
+    "pdf-parse": "latest"
   },
   "devDependencies": {
     "@types/node": "^22",

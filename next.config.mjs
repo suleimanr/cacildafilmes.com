@@ -16,9 +16,8 @@ const nextConfig = {
   },
   compress: false,
   experimental: {
-    serverExternalPackages: ['sharp'],
-  },
-  swcMinify: false,
+    memoryBasedWorkersCount: true,
+  }
 }
 
 export default nextConfig

@@ -24,14 +24,5 @@
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": [
-    "node_modules",
-    "**/elevenlabs*",
-    "**/11labs*",
-    "**/*elevenlabs*",
-    "**/*11labs*",
-    "**/ElevenLabs*",
-    "**/eleven-labs*",
-    "**/Elevenlabs*"
-  ]
+  "exclude": ["node_modules"]
 }

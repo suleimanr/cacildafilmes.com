@@ -6,6 +6,10 @@ const { execSync } = require("child_process")
 console.log("INICIANDO REMOÇÃO COMPLETA DE TUDO RELACIONADO AO ELEVENLABS")
 console.log("==========================================================")
 
+// Variáveis para busca
+const searchTerms = ["elevenlabs", "11labs", "ElevenLabs"]
+let foundReferences = false
+
 // 1. Remover diretórios específicos
 const directoriesToRemove = [
   "app/@11labs",
@@ -82,52 +86,89 @@ console.log("\nEncontrando arquivos que contêm referências ao ElevenLabs no co
 // Usar grep para encontrar arquivos com referências (funciona em Linux/Mac)
 let filesWithReferences = []
 try {
-  const grepCommand =
-    "grep -r -l 'elevenlabs\\|11labs\\|ElevenLabs' --include='*.{js,jsx,ts,tsx,json,md}' . --exclude-dir={node_modules,.git,.next}"
+  const grepPattern = searchTerms.join("\\|")
+  const grepCommand = `grep -r -l '${grepPattern}' --include='*.{js,jsx,ts,tsx,json,md,mjs}' . --exclude-dir={node_modules,.git,.next}`
+
+  console.log("Executando comando:", grepCommand)
+
   const grepResult = execSync(grepCommand, { encoding: "utf8" })
   filesWithReferences = grepResult.split("\n").filter(Boolean)
-  console.log(`Encontrados ${filesWithReferences.length} arquivos com referências ao ElevenLabs.`)
+
+  if (filesWithReferences.length > 0) {
+    foundReferences = true
+    console.log("\n🚨 AINDA EXISTEM REFERÊNCIAS AO ELEVENLABS NOS SEGUINTES ARQUIVOS:")
+    filesWithReferences.forEach((file) => console.log(`- ${file}`))
+  }
 } catch (error) {
-  console.log("Não foi possível usar grep, usando método alternativo...")
+  if (error.status !== 1) {
+    // grep retorna 1 quando não encontra nada, o que é bom neste caso
+    console.log("Não foi possível usar grep, usando método alternativo...")
 
-  // Método alternativo para Windows ou se grep falhar
-  function findFilesWithContent(dir, excludeDirs = ["node_modules", ".git", ".next"]) {
-    let results = []
+    // Método alternativo para Windows ou se grep falhar
+    function findReferencesInFiles(dir, excludeDirs = ["node_modules", ".git", ".next"]) {
+      let results = []
 
-    if (!fs.existsSync(dir)) return results
+      if (!fs.existsSync(dir)) return results
 
-    const items = fs.readdirSync(dir)
+      const items = fs.readdirSync(dir)
 
-    for (const item of items) {
-      const fullPath = path.join(dir, item)
+      for (const item of items) {
+        const fullPath = path.join(dir, item)
 
-      // Pular diretórios excluídos
-      if (excludeDirs.some((excludeDir) => fullPath.includes(excludeDir))) {
-        continue
-      }
-
-      try {
-        const stat = fs.statSync(fullPath)
-
-        if (stat.isDirectory()) {
-          results = results.concat(findFilesWithContent(fullPath, excludeDirs))
-        } else if (/\.(js|jsx|ts|tsx|json|md)$/.test(item)) {
-          // Verificar conteúdo apenas para arquivos de texto relevantes
-          const content = fs.readFileSync(fullPath, "utf8")
-          if (content.match(/(elevenlabs|11labs|ElevenLabs)/i)) {
-            results.push(fullPath)
-          }
+        // Pular diretórios excluídos
+        if (excludeDirs.some((excludeDir) => fullPath.includes(excludeDir))) {
+          continue
         }
-      } catch (error) {
-        // Ignorar erros de leitura de arquivo
+
+        try {
+          const stat = fs.statSync(fullPath)
+
+          if (stat.isDirectory()) {
+            results = results.concat(findReferencesInFiles(fullPath, excludeDirs))
+          } else if (/\.(js|jsx|ts|tsx|json|md|mjs)$/.test(item)) {
+            // Verificar conteúdo apenas para arquivos de texto relevantes
+            const content = fs.readFileSync(fullPath, "utf8")
+            for (const term of searchTerms) {
+              if (content.includes(term)) {
+                results.push({ file: fullPath, term })
+                break
+              }
+            }
+          }
+        } catch (error) {
+          // Ignorar erros de leitura de arquivo
+        }
       }
+
+      return results
     }
 
-    return results
-  }
+    const referencesFound = findReferencesInFiles(process.cwd())
 
-  filesWithReferences = findFilesWithContent(process.cwd())
-  console.log(`Encontrados ${filesWithReferences.length} arquivos com referências ao ElevenLabs.`)
+    if (referencesFound.length > 0) {
+      foundReferences = true
+      console.log("\n🚨 AINDA EXISTEM REFERÊNCIAS AO ELEVENLABS NOS SEGUINTES ARQUIVOS:")
+
+      // Agrupar por arquivo
+      const fileGroups = {}
+      referencesFound.forEach(({ file, term }) => {
+        if (!fileGroups[file]) {
+          fileGroups[file] = []
+        }
+        if (!fileGroups[file].includes(term)) {
+          fileGroups[file].push(term)
+        }
+      })
+
+      Object.entries(fileGroups).forEach(([file, terms]) => {
+        console.log(`- ${file} (termos: ${terms.join(", ")})`)
+      })
+    }
+  }
+}
+
+if (!foundReferences) {
+  console.log("\n✅ NENHUMA REFERÊNCIA AO ELEVENLABS ENCONTRADA!")
 }
 
 // 4. Criar versões limpas dos arquivos de configuração essenciais
@@ -136,26 +177,26 @@ console.log("\nCriando versões limpas dos arquivos de configuração essenciais
 // next.config.mjs limpo
 const nextConfigContent = `/** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: true,
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
-  typescript: {
-    ignoreBuildErrors: true,
-  },
-  images: {
-    domains: ['v0.blob.com', 'hebbkx1anhila5yf.public.blob.vercel-storage.com', 'vumbnail.com'],
-    unoptimized: true,
-  },
-  webpack: (config) => {
-    return config
-  },
-  compress: false,
-  experimental: {
-    serverExternalPackages: ['sharp'],
-    memoryBasedWorkersCount: true,
-  },
-  swcMinify: false,
+ reactStrictMode: true,
+ eslint: {
+   ignoreDuringBuilds: true,
+ },
+ typescript: {
+   ignoreBuildErrors: true,
+ },
+ images: {
+   domains: ['v0.blob.com', 'hebbkx1anhila5yf.public.blob.vercel-storage.com', 'vumbnail.com'],
+   unoptimized: true,
+ },
+ webpack: (config) => {
+   return config
+ },
+ compress: false,
+ experimental: {
+   serverExternalPackages: ['sharp'],
+   memoryBasedWorkersCount: true,
+ },
+ swcMinify: false,
 }
 
 export default nextConfig
@@ -166,14 +207,14 @@ console.log("✅ Criado next.config.mjs limpo")
 
 // vercel.json limpo
 const vercelJsonContent = `{
-  "buildCommand": "NODE_OPTIONS='--max-old-space-size=4096' next build",
-  "installCommand": "npm install --legacy-peer-deps --no-optional",
-  "framework": "nextjs",
-  "functions": {
-    "app/api/chat/route.ts": {
-      "maxDuration": 60
-    }
-  }
+ "buildCommand": "NODE_OPTIONS='--max-old-space-size=4096' next build",
+ "installCommand": "npm install --legacy-peer-deps --no-optional",
+ "framework": "nextjs",
+ "functions": {
+   "app/api/chat/route.ts": {
+     "maxDuration": 60
+   }
+ }
 }
 `
 
@@ -184,15 +225,15 @@ console.log("✅ Criado vercel.json limpo")
 const layoutContent = `import type React from "react"
 
 export default function RootLayout({
-  children,
+ children,
 }: {
-  children: React.ReactNode
+ children: React.ReactNode
 }) {
-  return (
-    <html lang="en">
-      <body>{children}</body>
-    </html>
-  )
+ return (
+   <html lang="en">
+     <body>{children}</body>
+   </html>
+ )
 }
 `
 

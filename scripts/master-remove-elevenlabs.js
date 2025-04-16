@@ -12,6 +12,7 @@ const scripts = [
   "remove-elevenlabs-files.js",
   "remove-all-elevenlabs.js",
   "check-elevenlabs-references.js",
+  "remove-babelrc.js", // Adicionado script para remover .babelrc
 ]
 
 // Verificar se todos os scripts existem
@@ -24,7 +25,8 @@ for (const script of scripts) {
   }
 
   // Executar o script
-  console.log(`\nExecutando script: ${script}`)
+  console.log(`
+Executando script: ${script}`)
   try {
     execSync(`node scripts/${script}`, { stdio: "inherit" })
     console.log(`✅ Script ${script} executado com sucesso.`)
@@ -34,31 +36,34 @@ for (const script of scripts) {
 }
 
 // Criar versões limpas dos arquivos de configuração essenciais
-console.log("\nCriando versões limpas dos arquivos de configuração essenciais...")
+console.log(
+  "\
+Criando versões limpas dos arquivos de configuração essenciais...",
+)
 
 // next.config.mjs limpo
 const nextConfigContent = `/** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: true,
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
-  typescript: {
-    ignoreBuildErrors: true,
-  },
-  images: {
-    domains: ['v0.blob.com', 'hebbkx1anhila5yf.public.blob.vercel-storage.com', 'vumbnail.com'],
-    unoptimized: true,
-  },
-  webpack: (config) => {
-    return config
-  },
-  compress: false,
-  experimental: {
-    serverExternalPackages: ['sharp'],
-    memoryBasedWorkersCount: true,
-  },
-  swcMinify: false,
+reactStrictMode: true,
+eslint: {
+  ignoreDuringBuilds: true,
+},
+typescript: {
+  ignoreBuildErrors: true,
+},
+images: {
+  domains: ['v0.blob.com', 'hebbkx1anhila5yf.public.blob.vercel-storage.com', 'vumbnail.com'],
+  unoptimized: true,
+},
+webpack: (config) => {
+  return config
+},
+compress: false,
+experimental: {
+  serverExternalPackages: ['sharp'],
+  memoryBasedWorkersCount: true,
+},
+swcMinify: false,
 }
 
 export default nextConfig
@@ -69,14 +74,14 @@ console.log("✅ Criado next.config.mjs limpo")
 
 // vercel.json limpo
 const vercelJsonContent = `{
-  "buildCommand": "NODE_OPTIONS='--max-old-space-size=4096' next build",
-  "installCommand": "npm install --legacy-peer-deps --no-optional",
-  "framework": "nextjs",
-  "functions": {
-    "app/api/chat/route.ts": {
-      "maxDuration": 60
-    }
+"buildCommand": "NODE_OPTIONS='--max-old-space-size=4096' next build",
+"installCommand": "npm install --legacy-peer-deps --no-optional",
+"framework": "nextjs",
+"functions": {
+  "app/api/chat/route.ts": {
+    "maxDuration": 60
   }
+}
 }
 `
 
@@ -87,15 +92,15 @@ console.log("✅ Criado vercel.json limpo")
 const layoutContent = `import type React from "react"
 
 export default function RootLayout({
-  children,
+children,
 }: {
-  children: React.ReactNode
+children: React.ReactNode
 }) {
-  return (
-    <html lang="en">
-      <body>{children}</body>
-    </html>
-  )
+return (
+  <html lang="en">
+    <body>{children}</body>
+  </html>
+)
 }
 `
 
@@ -109,7 +114,10 @@ console.log("✅ Criado app/layout.tsx limpo")
 
 // Limpar a pasta .next se existir
 if (fs.existsSync(path.join(process.cwd(), ".next"))) {
-  console.log("\nRemovendo pasta .next para forçar reconstrução limpa...")
+  console.log(
+    "\
+Removendo pasta .next para forçar reconstrução limpa...",
+  )
   try {
     fs.rmSync(path.join(process.cwd(), ".next"), { recursive: true, force: true })
     console.log("✅ Pasta .next removida com sucesso")
@@ -118,6 +126,9 @@ if (fs.existsSync(path.join(process.cwd(), ".next"))) {
   }
 }
 
-console.log("\n==========================================================")
+console.log(
+  "\
+==========================================================",
+)
 console.log("REMOÇÃO COMPLETA FINALIZADA")
 console.log("==========================================================")

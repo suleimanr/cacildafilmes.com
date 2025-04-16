@@ -11,7 +11,7 @@ interface MessageContentProps {
 const MessageContent: React.FC<MessageContentProps> = ({ content }) => {
   // Verificar se o conteúdo é um roteiro
   const roteiroRegex = /:::roteiro\s*([\s\S]*?)\s*:::/
-  const match = content.match(roteiroRegex)
+  const match = String(content || "").match(roteiroRegex)
 
   if (match) {
     // Se for um roteiro, extrair o conteúdo entre as tags e usar o componente RoteiroFormatado
@@ -21,7 +21,7 @@ const MessageContent: React.FC<MessageContentProps> = ({ content }) => {
     // Se não for um roteiro, renderizar como markdown normal
     return (
       <div className="prose prose-sm sm:prose lg:prose-lg max-w-none">
-        <ReactMarkdown>{content}</ReactMarkdown>
+        <ReactMarkdown>{String(content || "")}</ReactMarkdown>
       </div>
     )
   }

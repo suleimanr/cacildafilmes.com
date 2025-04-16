@@ -17,6 +17,7 @@ import ScrollToBottomButton from "@/components/ScrollToBottomButton"
 import { motion } from "framer-motion"
 import MessageContent from "@/components/MessageContent"
 import Sidebar from "@/components/Sidebar" // Importando o componente Sidebar
+import BriefingUpload from "@/components/BriefingUpload"
 
 interface Message {
   role: "user" | "assistant"
@@ -66,6 +67,9 @@ export default function Home() {
 
   // Adicionar um novo estado para controlar a posição inicial
   const [isInitialPosition, setIsInitialPosition] = useState(true)
+
+  // Adicione este estado
+  const [showBriefingUpload, setShowBriefingUpload] = useState(false)
 
   // Função para rolar para o final das mensagens
   const scrollToBottom = useCallback(() => {
@@ -196,10 +200,19 @@ export default function Home() {
     }
   }, [quickResponses])
 
-  // Modificar a função shouldUseAssistant para incluir instruções de idioma
+  // Modificar a função shouldUseAssistant para garantir que roteiros sempre usem o Assistant
   const shouldUseAssistant = useCallback(
     (message: string) => {
       const lowercaseMessage = message.toLowerCase()
+
+      // Sempre usar o Assistant para roteiros
+      if (
+        lowercaseMessage.includes("roteiro") ||
+        lowercaseMessage.includes("script") ||
+        lowercaseMessage.includes("aula")
+      ) {
+        return true
+      }
 
       // Verificar se a mensagem contém palavras-chave de consultas complexas
       return (
@@ -227,9 +240,24 @@ export default function Home() {
     }
   }, [])
 
+  // Adicione esta função para lidar com o roteiro gerado
+  const handleRoteiroGenerated = (roteiro: string) => {
+    // Adicionar o roteiro como uma mensagem do assistente
+    const newAssistantMessage = {
+      role: "assistant" as const,
+      content: `:::roteiro\n${roteiro}\n:::`,
+      id: uuidv4(),
+    }
+
+    setMessages((prev) => [...prev, newAssistantMessage])
+    setShowBriefingUpload(false)
+
+    // Rolar para o final após adicionar a resposta
+    setTimeout(scrollToBottom, 100)
+  }
+
   const handleMessageSent = useCallback(
     async (message: string) => {
-      // Disparar evento de interação com o chat
       const event = new Event("chatInteraction")
       window.dispatchEvent(event)
 
@@ -239,13 +267,10 @@ export default function Home() {
       setIsThinking(true)
 
       try {
-        // Check if this is a special command or common question we can handle locally
         const lowercaseMessage = message.toLowerCase().trim()
 
-        // Verificar comandos administrativos
+        // Comandos administrativos
         if (lowercaseMessage.startsWith("/uploadcacilda")) {
-          // Comando para abrir o formulário de upload de vídeo
-          // Este comando é usado pelos administradores para adicionar novos vídeos
           setShowUploadForm(true)
           setVideoToEdit(null)
           setMessages((prev) => [
@@ -261,8 +286,6 @@ export default function Home() {
         }
 
         if (lowercaseMessage.startsWith("/deletecacilda")) {
-          // Comando para abrir o formulário de deleção de vídeo
-          // Este comando é usado pelos administradores para gerenciar vídeos existentes
           setShowDeleteVideoForm(true)
           setMessages((prev) => [
             ...prev,
@@ -277,8 +300,6 @@ export default function Home() {
         }
 
         if (lowercaseMessage.startsWith("/promptcacilda")) {
-          // Comando para abrir o formulário de adição de prompt à base de conhecimento
-          // Este comando é usado pelos administradores para adicionar informações
           setShowPromptForm(true)
           setMessages((prev) => [
             ...prev,
@@ -292,454 +313,176 @@ export default function Home() {
           return
         }
 
-        // Verificar se temos uma resposta rápida para esta mensagem
-        if (quickResponses[lowercaseMessage]) {
-          setTimeout(() => {
-            setMessages((prev) => [
-              ...prev,
-              {
-                role: "assistant",
-                content: quickResponses[lowercaseMessage],
-                id: uuidv4(),
-              },
-            ])
-            setIsThinking(false)
-          }, 500) // Pequeno delay para parecer mais natural
-          return
-        }
-
-        // Verificar palavras-chave específicas para portfólio
-        if (
-          lowercaseMessage.includes("portfólio") ||
-          lowercaseMessage.includes("portfolio") ||
-          lowercaseMessage.includes("trabalhos") ||
-          lowercaseMessage.includes("projetos") ||
-          lowercaseMessage.includes("vídeos") ||
-          lowercaseMessage.includes("videos")
-        ) {
-          try {
-            // Tentar buscar a resposta de portfólio atualizada da API
-            const portfolioResponse = await fetch("/api/portfolio-response", {
-              headers: {
-                "Cache-Control": "no-cache, no-store, must-revalidate",
-                Pragma: "no-cache",
-                Expires: "0",
-              },
-            })
-
-            if (portfolioResponse.ok) {
-              const data = await portfolioResponse.json()
-              if (data.success && data.response) {
-                setMessages((prev) => [
-                  ...prev,
-                  {
-                    role: "assistant",
-                    content: data.response,
-                    id: uuidv4(),
-                    cardType: "portfolio",
-                  },
-                ])
-                setIsThinking(false)
-                return
-              }
-            }
-
-            // Se falhar, usar a resposta de fallback
-            console.log("Falha ao buscar resposta de portfólio atualizada, usando fallback")
-            setTimeout(() => {
-              setMessages((prev) => [
-                ...prev,
-                {
-                  role: "assistant",
-                  content: quickResponses["portfolio"],
-                  id: uuidv4(),
-                  cardType: "portfolio",
-                },
-              ])
-              setIsThinking(false)
-            }, 800)
-            return
-          } catch (error) {
-            console.error("Erro ao buscar resposta de portfólio:", error)
-            // Usar a resposta de fallback
-            setTimeout(() => {
-              setMessages((prev) => [
-                ...prev,
-                {
-                  role: "assistant",
-                  content: quickResponses["portfolio"],
-                  id: uuidv4(),
-                  cardType: "portfolio",
-                },
-              ])
-              setIsThinking(false)
-            }, 800)
-            return
-          }
-        }
-
-        // Verificar palavras-chave específicas para serviços
-        if (
-          lowercaseMessage.includes("serviço") ||
-          lowercaseMessage.includes("servico") ||
-          lowercaseMessage.includes("oferecem") ||
-          lowercaseMessage.includes("fazem")
-        ) {
-          setTimeout(() => {
-            setMessages((prev) => [
-              ...prev,
-              {
-                role: "assistant",
-                content: quickResponses["serviços"],
-                id: uuidv4(),
-                cardType: "servicos",
-              },
-            ])
-            setIsThinking(false)
-          }, 800)
-          return
-        }
-
-        // Verificar se a mensagem deve ser tratada pelo Assistant
-        if (shouldUseAssistant(message)) {
-          console.log("Usando Assistant API para resposta complexa")
-
-          // Criar um ID para a mensagem do assistente
-          const assistantMessageId = uuidv4()
-
-          // Adicionar mensagem vazia do assistente que será atualizada
+        if (lowercaseMessage.startsWith("/briefingcacilda")) {
+          setShowBriefingUpload(true)
           setMessages((prev) => [
             ...prev,
             {
               role: "assistant",
-              content: "Processando sua solicitação...",
-              id: assistantMessageId,
+              content: "Formulário de upload de briefing aberto.",
+              id: uuidv4(),
+            },
+          ])
+          setIsThinking(false)
+          return
+        }
+
+        // Comando para testar a conexão com a API
+        if (lowercaseMessage.startsWith("/testapi")) {
+          setMessages((prev) => [
+            ...prev,
+            {
+              role: "assistant",
+              content: "Testando conexão com a API OpenAI...",
+              id: uuidv4(),
             },
           ])
 
-          // Adicionar timeout para a requisição
-          const controller = new AbortController()
-          const timeoutId = setTimeout(() => controller.abort(), 45000) // 45 segundos de timeout
-
           try {
-            // Enviar para a API do Assistant com timeout
-            const response = await fetch("/api/chat", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                messages: [...messages, newUserMessage],
-                timestamp: Date.now(),
-              }),
-              signal: controller.signal,
-            })
+            const response = await fetch("/api/test-openai")
+            const data = await response.json()
 
-            clearTimeout(timeoutId) // Limpar o timeout se a requisição completar
-
-            if (!response.ok) {
-              // Se o servidor retornar um erro, verificar se há uma resposta de fallback
-              const errorData = await response.json().catch(() => ({}))
-
-              if (errorData && errorData.fallbackResponse) {
-                // Usar a resposta de fallback fornecida pelo servidor
-                setMessages((prev) => {
-                  const index = prev.findIndex((m) => m.id === assistantMessageId)
-                  if (index === -1) return prev
-
-                  const newMessages = [...prev]
-                  newMessages[index] = {
-                    role: "assistant",
-                    content: errorData.fallbackResponse,
-                    id: assistantMessageId,
-                  }
-                  return newMessages
-                })
-                setIsThinking(false)
-                return
-              }
-
-              throw new Error(`Server error: ${response.status} ${response.statusText}`)
-            }
-
-            // Processar a resposta como stream de texto
-            const reader = response.body?.getReader()
-            if (!reader) {
-              throw new Error("Não foi possível ler a resposta")
-            }
-
-            // Ler o stream e atualizar a mensagem do assistente
-            const decoder = new TextDecoder()
-            let assistantMessage = ""
-
-            while (true) {
-              const { value, done } = await reader.read()
-              if (done) break
-
-              const chunk = decoder.decode(value, { stream: true })
-
-              // Remover textos de status como "Gerando resposta..." do chunk
-              const cleanedChunk = chunk
-                .replace(/Gerando resposta\.\.\./g, "")
-                .replace(/Aguardando na fila\.\.\./g, "")
-                .replace(/Processando sua solicitação\.\.\./g, "")
-
-              if (cleanedChunk.trim()) {
-                assistantMessage += cleanedChunk
-              }
-
-              // Atualizar a mensagem do assistente com o conteúdo recebido até agora
-              setMessages((prev) => {
-                const index = prev.findIndex((m) => m.id === assistantMessageId)
-                if (index === -1) return prev
-
-                const newMessages = [...prev]
-                newMessages[index] = {
-                  role: "assistant",
-                  content: assistantMessage,
-                  id: assistantMessageId,
-                }
-                return newMessages
-              })
-
-              // Rolar para o final após cada atualização
-              scrollToBottom()
-            }
-          } catch (error: any) {
-            console.error("Error:", error)
-
-            // Verificar se é um erro de timeout (AbortError)
-            if (error.name === "AbortError") {
-              setMessages((prev) => {
-                const index = prev.findIndex((m) => m.id === assistantMessageId)
-                if (index === -1) return prev
-
-                const newMessages = [...prev]
-                newMessages[index] = {
-                  role: "assistant",
-                  content:
-                    "Desculpe, a resposta está demorando mais do que o esperado. Por favor, tente uma pergunta mais simples ou entre em contato pelo email atendimento@cacildafilmes.com.",
-                  id: assistantMessageId,
-                }
-                return newMessages
-              })
-            } else {
-              // Para outros erros, tentar usar o modelo mais simples
-              try {
-                // Atualizar a mensagem para indicar que estamos tentando uma abordagem alternativa
-                setMessages((prev) => {
-                  const index = prev.findIndex((m) => m.id === assistantMessageId)
-                  if (index === -1) return prev
-
-                  const newMessages = [...prev]
-                  newMessages[index] = {
-                    role: "assistant",
-                    content: "Processando com método alternativo...",
-                    id: assistantMessageId,
-                  }
-                  return newMessages
-                })
-
-                // Tentar novamente com o modelo mais simples
-                const fallbackResponse = await fetch("/api/chat", {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({
-                    messages: [newUserMessage], // Enviar apenas a mensagem atual para simplificar
-                    useSimpleModel: true, // Indicar para usar o modelo mais simples
-                    timestamp: Date.now(),
-                  }),
-                })
-
-                if (!fallbackResponse.ok) {
-                  throw new Error("Falha no método alternativo")
-                }
-
-                const reader = fallbackResponse.body?.getReader()
-                if (!reader) {
-                  throw new Error("Não foi possível ler a resposta alternativa")
-                }
-
-                // Processar a resposta alternativa
-                const decoder = new TextDecoder()
-                let fallbackContent = ""
-
-                while (true) {
-                  const { value, done } = await reader.read()
-                  if (done) break
-
-                  const chunk = decoder.decode(value, { stream: true })
-                  fallbackContent += chunk
-
-                  // Atualizar a mensagem
-                  setMessages((prev) => {
-                    const index = prev.findIndex((m) => m.id === assistantMessageId)
-                    if (index === -1) return prev
-
-                    const newMessages = [...prev]
-                    newMessages[index] = {
-                      role: "assistant",
-                      content: fallbackContent,
-                      id: assistantMessageId,
-                    }
-                    return newMessages
-                  })
-
-                  // Rolar para o final após cada atualização
-                  scrollToBottom()
-                }
-              } catch (fallbackError) {
-                console.error("Fallback error:", fallbackError)
-
-                // Se tudo falhar, mostrar uma mensagem de erro genérica
-                setMessages((prev) => {
-                  const index = prev.findIndex((m) => m.id === assistantMessageId)
-                  if (index === -1) return prev
-
-                  const newMessages = [...prev]
-                  newMessages[index] = {
-                    role: "assistant",
-                    content:
-                      "Desculpe, estou enfrentando dificuldades técnicas no momento. Por favor, tente novamente mais tarde ou entre em contato pelo email atendimento@cacildafilmes.com.",
-                    id: assistantMessageId,
-                  }
-                  return newMessages
-                })
-              }
-            }
-          } finally {
-            clearTimeout(timeoutId) // Garantir que o timeout seja limpo
-          }
-        } else {
-          // Para mensagens simples, tentar encontrar uma resposta aproximada
-          console.log("Usando resposta local para pergunta simples")
-
-          // Verificar se alguma palavra-chave das respostas rápidas está na mensagem
-          let bestMatch = null
-          let bestMatchScore = 0
-
-          for (const [key, response] of Object.entries(quickResponses)) {
-            // Ignorar chaves muito curtas para evitar falsos positivos
-            if (key.length < 4) continue
-
-            // Calcular uma pontuação simples baseada na presença de palavras-chave
-            const keyWords = key.split(" ")
-            let matchScore = 0
-
-            for (const word of keyWords) {
-              if (word.length > 3 && lowercaseMessage.includes(word)) {
-                matchScore += 1
-              }
-            }
-
-            if (matchScore > bestMatchScore) {
-              bestMatch = response
-              bestMatchScore = matchScore
-            }
-          }
-
-          if (bestMatch && bestMatchScore > 0) {
-            // Encontrou uma correspondência razoável
-            setTimeout(() => {
-              setMessages((prev) => [
-                ...prev,
-                {
-                  role: "assistant",
-                  content: bestMatch as string,
-                  id: uuidv4(),
-                },
-              ])
-              setIsThinking(false)
-              scrollToBottom()
-            }, 800)
-          } else {
-            // Nenhuma correspondência encontrada, usar o Assistant
-            console.log("Nenhuma correspondência local encontrada, usando Assistant API")
-
-            // Código para usar o Assistant (mesmo código de acima)
-            const response = await fetch("/api/chat", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                messages: [...messages, newUserMessage],
-                timestamp: Date.now(),
-              }),
-            })
-
-            // E adicionar código para salvar o threadId retornado
-            if (response.ok) {
-              const data = await response.json()
-              if (data.threadId) {
-                localStorage.setItem("threadId", data.threadId)
-                console.log("Thread ID salvo:", data.threadId)
-              }
-            }
-
-            if (!response.ok) {
-              throw new Error(`Server error: ${response.status} ${response.statusText}`)
-            }
-
-            const reader = response.body?.getReader()
-            if (!reader) {
-              throw new Error("Não foi possível ler a resposta")
-            }
-
-            const assistantMessageId = uuidv4()
             setMessages((prev) => [
               ...prev,
               {
                 role: "assistant",
-                content: "",
-                id: assistantMessageId,
+                content: `Resultado do teste: ${data.success ? "Sucesso" : "Falha"}\n${data.message || ""}\n${data.error || ""}`,
+                id: uuidv4(),
               },
             ])
-
-            const decoder = new TextDecoder()
-            let assistantMessage = ""
-
-            while (true) {
-              const { value, done } = await reader.read()
-              if (done) break
-
-              const chunk = decoder.decode(value, { stream: true })
-              const cleanedChunk = chunk
-                .replace(/Gerando resposta\.\.\./g, "")
-                .replace(/Aguardando na fila\.\.\./g, "")
-                .replace(/Processando sua solicitação\.\.\./g, "")
-
-              if (cleanedChunk.trim()) {
-                assistantMessage += cleanedChunk
-              }
-
-              setMessages((prev) => {
-                const index = prev.findIndex((m) => m.id === assistantMessageId)
-                if (index === -1) return prev
-
-                const newMessages = [...prev]
-                newMessages[index] = {
-                  role: "assistant",
-                  content: assistantMessage,
-                  id: assistantMessageId,
-                }
-                return newMessages
-              })
-
-              // Rolar para o final após cada atualização
-              scrollToBottom()
-            }
+          } catch (error) {
+            setMessages((prev) => [
+              ...prev,
+              {
+                role: "assistant",
+                content: `Erro ao testar API: ${error instanceof Error ? error.message : "Erro desconhecido"}`,
+                id: uuidv4(),
+              },
+            ])
           }
+
+          setIsThinking(false)
+          return
         }
-      } catch (error) {
-        console.error("Error:", error)
+
+        // Comando para testar o assistente
+        if (lowercaseMessage.startsWith("/testassistant")) {
+          setMessages((prev) => [
+            ...prev,
+            {
+              role: "assistant",
+              content: "Testando configuração do assistente OpenAI...",
+              id: uuidv4(),
+            },
+          ])
+
+          try {
+            const response = await fetch("/api/check-assistant")
+            const data = await response.json()
+
+            setMessages((prev) => [
+              ...prev,
+              {
+                role: "assistant",
+                content: `Resultado do teste: ${data.success ? "Sucesso" : "Falha"}\n${data.message || ""}\n${data.error || ""}\n${data.assistant ? `ID: ${data.assistant.id}\nModelo: ${data.assistant.model}` : ""}`,
+                id: uuidv4(),
+              },
+            ])
+          } catch (error) {
+            setMessages((prev) => [
+              ...prev,
+              {
+                role: "assistant",
+                content: `Erro ao testar assistente: ${error instanceof Error ? error.message : "Erro desconhecido"}`,
+                id: uuidv4(),
+              },
+            ])
+          }
+
+          setIsThinking(false)
+          return
+        }
+
+        if (quickResponses[lowercaseMessage]) {
+          setMessages((prev) => [
+            ...prev,
+            {
+              role: "assistant",
+              content: quickResponses[lowercaseMessage],
+              id: uuidv4(),
+            },
+          ])
+          setIsThinking(false)
+          return
+        }
+
+        // Verifica se é simples (usamos fallback só nesses casos)
+        const isSimple = !shouldUseAssistant(message)
+        // Garantir que o apiPayload seja construído corretamente
+        const apiPayload = {
+          messages: [...messages, newUserMessage],
+          timestamp: Date.now(),
+          useSimpleModel: !shouldUseAssistant(message), // Usar o Assistant quando shouldUseAssistant retornar true
+        }
+
+        const assistantMessageId = uuidv4()
         setMessages((prev) => [
           ...prev,
           {
             role: "assistant",
-            content: "Desculpe, ocorreu um erro ao processar sua mensagem. Por favor, tente novamente mais tarde.",
+            content: "Processando sua solicitação...",
+            id: assistantMessageId,
+          },
+        ])
+
+        const response = await fetch("/api/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(apiPayload),
+        })
+
+        if (!response.ok) {
+          throw new Error(`Erro ${response.status}`)
+        }
+
+        const reader = response.body?.getReader()
+        const decoder = new TextDecoder()
+        let assistantMessage = ""
+
+        if (!reader) throw new Error("Leitor ausente na resposta")
+
+        while (true) {
+          const { value, done } = await reader.read()
+          if (done) break
+          const chunk = decoder.decode(value, { stream: true })
+          assistantMessage += chunk
+
+          setMessages((prev) => {
+            const index = prev.findIndex((m) => m.id === assistantMessageId)
+            if (index === -1) return prev
+            const newMessages = [...prev]
+            newMessages[index] = {
+              ...newMessages[index],
+              content: assistantMessage,
+            }
+            return newMessages
+          })
+
+          scrollToBottom()
+        }
+      } catch (err) {
+        console.error("Erro:", err)
+        setMessages((prev) => [
+          ...prev,
+          {
+            role: "assistant",
+            content:
+              "Houve uma falha técnica ao gerar a resposta. Tente novamente ou entre em contato com nosso atendimento.",
             id: uuidv4(),
           },
         ])
       } finally {
         setIsThinking(false)
-        // Garantir que rolamos para o final após o processamento
         setTimeout(scrollToBottom, 100)
       }
     },
@@ -1078,16 +821,13 @@ export default function Home() {
     <div className="min-h-screen bg-black text-white relative overflow-hidden">
       {/* Renderizar o Header com a prop chatInteracted */}
       <Header chatInteracted={chatInteracted} />
-
       {/* Adicionar o componente Sidebar */}
       <Sidebar />
-
       {apiLimitReached && (
         <div className="fixed top-20 left-0 right-0 bg-yellow-600 text-white text-center py-2 px-4 z-50">
           Estamos operando com capacidade limitada. Algumas funcionalidades podem estar indisponíveis.
         </div>
       )}
-
       <div className="h-screen relative overflow-hidden flex flex-col pt-4">
         <div className="flex-grow relative pb-20">
           {messages.length > 0 && (
@@ -1258,10 +998,35 @@ export default function Home() {
           </div>
         </motion.div>
       </div>
-
+      // Adicione este código no JSX, onde você tem os botões administrativos
+      {showBriefingUpload && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+          <div className="bg-gray-900 rounded-lg p-6 max-w-2xl w-full">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold text-white">Upload de Briefing</h2>
+              <button onClick={() => setShowBriefingUpload(false)} className="text-gray-400 hover:text-white">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            </div>
+            <BriefingUpload onRoteiroGenerated={handleRoteiroGenerated} />
+          </div>
+        </div>
+      )}
       {/* Tutorial Guiado */}
       <GuidedTour isOpen={showTutorial} onClose={() => setShowTutorial(false)} onComplete={handleTutorialComplete} />
-
       {/* Botão para abrir o tutorial novamente */}
       {tutorialCompleted && (
         <button
@@ -1285,7 +1050,6 @@ export default function Home() {
           </svg>
         </button>
       )}
-
       {/* Formulários administrativos */}
       {showUploadForm && (
         <UploadForm
@@ -1294,7 +1058,6 @@ export default function Home() {
           videoToEdit={videoToEdit}
         />
       )}
-
       {showDeleteVideoForm && (
         <DeleteVideoPopup
           onClose={() => setShowDeleteVideoForm(false)}
@@ -1302,9 +1065,7 @@ export default function Home() {
           onEdit={handleEditVideo}
         />
       )}
-
       {showPromptForm && <PromptPopup onClose={() => setShowPromptForm(false)} onSubmit={handlePromptSubmit} />}
-
       {/* Toast container para notificações */}
       <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} closeOnClick pauseOnHover />
     </div>
