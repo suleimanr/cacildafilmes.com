@@ -16,6 +16,19 @@ export default function BriefingUpload({ onRoteiroGenerated }: BriefingUploadPro
     if (acceptedFiles.length === 0) return
 
     const file = acceptedFiles[0]
+
+    // Verificar se é um PDF
+    if (file.type !== "application/pdf") {
+      toast.error("Por favor, envie apenas arquivos PDF")
+      return
+    }
+
+    // Verificar o tamanho do arquivo (limite de 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error("O arquivo é muito grande. O tamanho máximo é 10MB")
+      return
+    }
+
     const formData = new FormData()
     formData.append("file", file)
 
@@ -24,10 +37,12 @@ export default function BriefingUpload({ onRoteiroGenerated }: BriefingUploadPro
       const response = await fetch("/api/briefing-upload", {
         method: "POST",
         body: formData,
+        // Não definir o Content-Type, o navegador vai configurar automaticamente com o boundary correto
       })
 
       if (!response.ok) {
-        throw new Error(`Erro ${response.status}: ${await response.text()}`)
+        const errorText = await response.text()
+        throw new Error(`Erro ${response.status}: ${errorText}`)
       }
 
       // Ler o stream da resposta
@@ -60,6 +75,7 @@ export default function BriefingUpload({ onRoteiroGenerated }: BriefingUploadPro
     onDrop,
     accept: { "application/pdf": [".pdf"] },
     multiple: false,
+    maxSize: 10 * 1024 * 1024, // 10MB
   })
 
   return (
@@ -83,6 +99,7 @@ export default function BriefingUpload({ onRoteiroGenerated }: BriefingUploadPro
             Arraste e solte o arquivo PDF do briefing aqui, ou clique para selecionar.
           </p>
           <p className="text-gray-400 text-sm">O arquivo será processado e um roteiro será gerado automaticamente.</p>
+          <p className="text-gray-500 text-xs mt-2">Tamanho máximo: 10MB</p>
         </div>
       )}
     </div>

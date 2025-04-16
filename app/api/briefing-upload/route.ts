@@ -1,46 +1,49 @@
 import { NextResponse } from "next/server"
-import { IncomingForm } from "formidable"
-import fs from "fs"
-import { promisify } from "util"
 import OpenAI from "openai"
+import { writeFile } from "fs/promises"
+import { join } from "path"
+import { v4 as uuidv4 } from "uuid"
+import os from "os"
 
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-}
-
-const readFile = promisify(fs.readFile)
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
 export const maxDuration = 60
 
 export async function POST(req: Request) {
   try {
-    // Usar formidable para processar o upload do arquivo
-    const form = new IncomingForm({ uploadDir: "/tmp", keepExtensions: true })
-
-    const data: any = await new Promise((resolve, reject) => {
-      form.parse(req as any, (err, fields, files) => {
-        if (err) reject(err)
-        else resolve({ fields, files })
-      })
-    })
-
-    const uploadedFile = data.files.file?.[0] || data.files.briefing?.[0]
-    if (!uploadedFile) {
-      return NextResponse.json({ error: "Arquivo não encontrado." }, { status: 400 })
+    // Verificar se a requisição é multipart/form-data
+    const contentType = req.headers.get("content-type") || ""
+    if (!contentType.includes("multipart/form-data")) {
+      return NextResponse.json({ error: "Formato de requisição inválido" }, { status: 400 })
     }
 
-    // Extrair texto do PDF usando pdf-parse com importação dinâmica
-    const fileBuffer = await readFile(uploadedFile.filepath)
+    // Processar o upload do arquivo usando FormData
+    const formData = await req.formData()
+    const file = formData.get("file") as File | null
 
-    // Importação dinâmica do pdf-parse para evitar problemas durante o build
+    if (!file) {
+      return NextResponse.json({ error: "Nenhum arquivo enviado" }, { status: 400 })
+    }
+
+    // Verificar se é um PDF
+    if (file.type !== "application/pdf") {
+      return NextResponse.json({ error: "O arquivo deve ser um PDF" }, { status: 400 })
+    }
+
+    // Salvar o arquivo temporariamente
+    const bytes = await file.arrayBuffer()
+    const buffer = Buffer.from(bytes)
+
+    // Criar um nome de arquivo temporário único
+    const tempDir = os.tmpdir()
+    const tempFilePath = join(tempDir, `briefing-${uuidv4()}.pdf`)
+
+    // Escrever o arquivo no sistema de arquivos
+    await writeFile(tempFilePath, buffer)
+
+    // Importar pdf-parse dinamicamente para evitar problemas no cliente
     const pdfParse = (await import("pdf-parse")).default
-    const pdfData = await pdfParse(fileBuffer)
+    const pdfData = await pdfParse(buffer)
     const content = pdfData.text
-
-    // Limpar o arquivo temporário
-    fs.unlinkSync(uploadedFile.filepath)
 
     // Verificar se o conteúdo é válido
     if (!content || content.trim().length < 50) {

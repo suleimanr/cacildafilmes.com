@@ -16,6 +16,7 @@ const nextConfig = {
   },
   compress: false,
   experimental: {
+    serverComponentsExternalPackages: ['sharp', 'pdf-parse'],
     memoryBasedWorkersCount: true,
   }
 }

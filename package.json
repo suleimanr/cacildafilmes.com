@@ -76,12 +76,11 @@
     "react-toastify": "latest",
     "dotenv": "latest",
     "child_process": "latest",
-    "react-dropzone": "latest",
-    "react-markdown": "latest",
     "uuid": "latest",
-    "formidable": "latest",
-    "util": "latest",
-    "pdf-parse": "latest"
+    "os": "latest",
+    "pdf-parse": "latest",
+    "react-dropzone": "latest",
+    "react-markdown": "latest"
   },
   "devDependencies": {
     "@types/node": "^22",

@@ -18,15 +18,16 @@ const RoteiroFormatado: React.FC<RoteiroFormatadoProps> = ({ content }) => {
 
       if (line === "") {
         processedLines.push({ type: "blank", content: "" })
-      } else if (line.startsWith("🎬")) {
+      } else if (line.startsWith("🎬") || line.startsWith("# ")) {
         // Título do roteiro
         processedLines.push({ type: "title", content: line })
-      } else if (line.startsWith("📍")) {
+      } else if (line.startsWith("📍") || line.startsWith("## ")) {
         // Seção (Introdução, Desenvolvimento, etc)
         processedLines.push({ type: "section", content: line })
-      } else if (line.match(/^\[.*\]$/)) {
+      } else if (line.match(/^\[.*\]$/) || (line.includes("[") && line.includes("]"))) {
         // Instruções entre colchetes
-        const instruction = line.substring(1, line.length - 1)
+        const instruction = line.includes("[") && line.includes("]") ? line : line.substring(1, line.length - 1)
+
         if (instruction.toLowerCase().includes("lettering:")) {
           // Lettering especial
           processedLines.push({ type: "lettering", content: instruction })
@@ -34,9 +35,10 @@ const RoteiroFormatado: React.FC<RoteiroFormatadoProps> = ({ content }) => {
           // Instrução normal
           processedLines.push({ type: "instruction", content: instruction })
         }
-      } else if (line.startsWith('"') && line.endsWith('"')) {
+      } else if ((line.startsWith('"') && line.endsWith('"')) || (line.startsWith('"') && line.endsWith('"'))) {
         // Falas entre aspas
-        processedLines.push({ type: "speech", content: line.substring(1, line.length - 1) })
+        const speech = line.startsWith('"') ? line.substring(1, line.length - 1) : line.substring(1, line.length - 1)
+        processedLines.push({ type: "speech", content: speech })
       } else {
         // Texto normal
         processedLines.push({ type: "text", content: line })
@@ -80,7 +82,7 @@ const RoteiroFormatado: React.FC<RoteiroFormatadoProps> = ({ content }) => {
             variants={itemVariants}
             className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white font-bold text-xl md:text-2xl p-4 rounded-lg mb-6"
           >
-            {line.content}
+            {line.content.replace(/^🎬\s*|^#\s*/, "")}
           </motion.div>
         )
       case "section":
@@ -103,7 +105,7 @@ const RoteiroFormatado: React.FC<RoteiroFormatadoProps> = ({ content }) => {
             className="border-l-4 border-blue-500 pl-3 font-semibold text-lg md:text-xl mb-4 flex items-center"
           >
             <span className="mr-2 text-xl">{icon}</span>
-            {line.content}
+            {line.content.replace(/^📍\s*|^##\s*/, "")}
           </motion.div>
         )
       case "instruction":
